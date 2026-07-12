@@ -131,13 +131,27 @@ CLASS_NAMES = ['ADI', 'BACK', 'DEB', 'LYM', 'MUC', 'MUS', 'NORM', 'STR', 'TUM']
 @st.cache_resource
 def load_models_and_confusion_matrices():
     try:
+        # Create MobileNetV2 Base model manually and load weights
+        inputs = keras.Input(shape=(224, 224, 3))
+        base_model = keras.applications.MobileNetV2(
+            input_tensor=inputs,
+            include_top=False,
+            weights=None  # We'll load our own weights
+        )
+        x = keras.layers.GlobalAveragePooling2D(name='global_average_pooling2d')(base_model.output)
+        x = keras.layers.Dense(256, activation='relu', name='dense')(x)
+        x = keras.layers.Dropout(0.5, name='dropout')(x)
+        outputs = keras.layers.Dense(9, activation='softmax', name='dense_1')(x)
+        mobilenet_model = keras.Model(inputs=inputs, outputs=outputs)
+        mobilenet_model.load_weights('models/mobilenetv2_base_only.h5', by_name=True, skip_mismatch=True)
+
         models = {
             'CNN Simple': keras.models.load_model('models/cnn_simple_model.h5'),
             'ResNet50V2': keras.layers.TFSMLayer(
                 'models/resnet50_model',
                 call_endpoint='serving_default'
             ),
-            'MobileNetV2 Base': keras.models.load_model('models/mobilenetv2_base_only.h5'),
+            'MobileNetV2 Base': mobilenet_model,
             'Hybrid Attention': keras.models.load_model('models/Fast_HybridAttention_final.h5'),
             'Hybrid Autoencoder': keras.models.load_model('models/Fast_HybridAutoencoder_final.h5')
         }
