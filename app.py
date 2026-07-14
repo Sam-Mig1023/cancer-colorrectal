@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from tensorflow import keras
 from sklearn.metrics import confusion_matrix, matthews_corrcoef
-from scipy.stats import chi2
+from scipy.stats import chi2, binomtest, beta
 import seaborn as sns
 from fpdf import FPDF
 from datetime import datetime
@@ -261,6 +261,135 @@ def calculate_mcc(conf_matrix):
     
     # Calcular MCC usando sklearn (más robusto)
     return matthews_corrcoef(y_true, y_pred)
+
+def calculate_accuracy_from_confusion_matrix(conf_matrix):
+    """
+    Calcula la exactitud global a partir de una matriz de confusión.
+
+    La diagonal contiene las predicciones correctas y la suma total
+    representa todas las imágenes evaluadas.
+    """
+    conf_matrix = np.asarray(conf_matrix)
+
+    total_samples = int(np.sum(conf_matrix))
+    correct_predictions = int(np.trace(conf_matrix))
+
+    if total_samples == 0:
+        return 0.0, 0, 0
+
+    accuracy = correct_predictions / total_samples
+
+    return accuracy, correct_predictions, total_samples
+
+
+def calculate_accuracy_confidence_interval(
+    correct_predictions,
+    total_samples,
+    confidence_level=0.95
+):
+    """
+    Calcula un intervalo de confianza exacto de Clopper-Pearson
+    para la exactitud del modelo.
+    """
+    if total_samples <= 0:
+        return 0.0, 0.0
+
+    alpha = 1 - confidence_level
+
+    if correct_predictions == 0:
+        lower_limit = 0.0
+    else:
+        lower_limit = beta.ppf(
+            alpha / 2,
+            correct_predictions,
+            total_samples - correct_predictions + 1
+        )
+
+    if correct_predictions == total_samples:
+        upper_limit = 1.0
+    else:
+        upper_limit = beta.ppf(
+            1 - alpha / 2,
+            correct_predictions + 1,
+            total_samples - correct_predictions
+        )
+
+    return float(lower_limit), float(upper_limit)
+
+
+def perform_binomial_accuracy_test(
+    conf_matrix,
+    expected_accuracy=None,
+    alternative="greater"
+):
+    """
+    Comprueba si la exactitud del modelo es significativamente superior
+    a la exactitud esperada de un clasificador aleatorio.
+
+    Para nueve clases:
+        exactitud esperada al azar = 1 / 9
+    """
+    accuracy, correct_predictions, total_samples = (
+        calculate_accuracy_from_confusion_matrix(conf_matrix)
+    )
+
+    if expected_accuracy is None:
+        expected_accuracy = 1 / len(CLASS_NAMES)
+
+    if total_samples == 0:
+        return {
+            "accuracy": 0.0,
+            "correct_predictions": 0,
+            "total_samples": 0,
+            "expected_accuracy": expected_accuracy,
+            "p_value": None,
+            "significant": False,
+            "ci_lower": 0.0,
+            "ci_upper": 0.0,
+            "interpretation": (
+                "No existen observaciones suficientes para realizar "
+                "la prueba estadística."
+            )
+        }
+
+    test_result = binomtest(
+        k=correct_predictions,
+        n=total_samples,
+        p=expected_accuracy,
+        alternative=alternative
+    )
+
+    ci_lower, ci_upper = calculate_accuracy_confidence_interval(
+        correct_predictions,
+        total_samples
+    )
+
+    alpha = 0.05
+    significant = test_result.pvalue < alpha
+
+    if significant and accuracy > expected_accuracy:
+        interpretation = (
+            "La exactitud del modelo es estadísticamente superior "
+            "a la clasificación aleatoria."
+        )
+    else:
+        interpretation = (
+            "No existe evidencia estadística suficiente para afirmar "
+            "que la exactitud del modelo sea superior a la clasificación "
+            "aleatoria."
+        )
+
+    return {
+        "accuracy": accuracy,
+        "correct_predictions": correct_predictions,
+        "total_samples": total_samples,
+        "expected_accuracy": expected_accuracy,
+        "p_value": float(test_result.pvalue),
+        "significant": significant,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "interpretation": interpretation
+    }
 
 # Función para realizar la prueba de McNemar
 def perform_mcnemar_test(conf_matrix1, conf_matrix2):
@@ -973,6 +1102,71 @@ def main():
 
                             # MCC y prueba de McNemar
                             st.subheader("📈 " + t('statistical_analysis'))
+                            st.markdown("### 🧪 Prueba binomial de exactitud")
+
+                            selected_confusion_matrix = confusion_matrices[model_name]
+
+                            binomial_result = perform_binomial_accuracy_test(
+                                selected_confusion_matrix
+                            )
+
+                            col_stat_1, col_stat_2, col_stat_3 = st.columns(3)
+
+                            with col_stat_1:
+                                st.metric(
+                                    label="Exactitud observada",
+                                    value=f"{binomial_result['accuracy'] * 100:.2f} %"
+                                )
+
+                            with col_stat_2:
+                                st.metric(
+                                    label="Exactitud esperada al azar",
+                                    value=f"{binomial_result['expected_accuracy'] * 100:.2f} %"
+                                )
+
+                            with col_stat_3:
+                                p_value = binomial_result["p_value"]
+
+                                st.metric(
+                                    label="Valor p",
+                                    value=(
+                                        f"{p_value:.6f}"
+                                        if p_value is not None
+                                        else "No disponible"
+                                    )
+                                )
+
+                            st.markdown(
+                                f"""
+                            **Modelo evaluado:** {model_name}
+
+                            **Hipótesis nula (H₀):** la exactitud del modelo es igual o menor que
+                            la obtenida mediante clasificación aleatoria.
+
+                            **Hipótesis alternativa (H₁):** la exactitud del modelo es superior
+                            a la clasificación aleatoria.
+
+                            **Aciertos:** {binomial_result['correct_predictions']}
+
+                            **Total de imágenes evaluadas:** {binomial_result['total_samples']}
+
+                            **Intervalo de confianza del 95 %:**
+
+                            {binomial_result['ci_lower'] * 100:.2f} % –
+                            {binomial_result['ci_upper'] * 100:.2f} %
+
+                            **Nivel de significancia:** α = 0.05
+                            """
+                            )
+
+                            if binomial_result["significant"]:
+                                st.success(
+                                    "✅ " + binomial_result["interpretation"]
+                                )
+                            else:
+                                st.warning(
+                                    "⚠️ " + binomial_result["interpretation"]
+                                )   
                             
                             # Mostrar MCC para todos los modelos
                             st.markdown(f"#### {t('mcc')}")
