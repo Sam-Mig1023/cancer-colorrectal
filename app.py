@@ -1045,9 +1045,182 @@ def preprocess_image(image, model_name=None):
     except Exception as e:
         st.error(f"Error processing image: {str(e)}")
         return None
+def aplicar_tema(modo_oscuro: bool) -> None:
+    """Aplica un tema claro u oscuro mediante CSS."""
+
+    if modo_oscuro:
+        colores = {
+            "fondo": "#0E1117",
+            "fondo_secundario": "#1E293B",
+            "sidebar": "#111827",
+            "texto": "#FAFAFA",
+            "texto_secundario": "#D1D5DB",
+            "borde": "#374151",
+            "input": "#1F2937",
+            "primario": "#FF4B4B",
+            "boton_fondo": "#FFFFFF",
+            "boton_texto": "#111827",
+            "boton_hover": "#E5E7EB",
+        }
+    else:
+        colores = {
+            "fondo": "#FFFFFF",
+            "fondo_secundario": "#F6F8FA",
+            "sidebar": "#F8FAFC",
+            "texto": "#111827",
+            "texto_secundario": "#4B5563",
+            "borde": "#D1D5DB",
+            "input": "#FFFFFF",
+            "primario": "#FF4B4B",
+            "boton_fondo": "#FFFFFF",
+            "boton_texto": "#111827",
+            "boton_hover": "#F3F4F6",
+        }
+
+    st.markdown(
+        f"""
+        <style>
+        /* Fondo principal */
+        [data-testid="stAppViewContainer"] {{
+            background-color: {colores["fondo"]};
+            color: {colores["texto"]};
+        }}
+
+        [data-testid="stMainBlockContainer"] {{
+            background-color: {colores["fondo"]};
+        }}
+
+        /* Barra lateral */
+        [data-testid="stSidebar"],
+        [data-testid="stSidebarContent"] {{
+            background-color: {colores["sidebar"]};
+        }}
+
+        [data-testid="stSidebar"] {{
+            border-right: 1px solid {colores["borde"]};
+        }}
+
+        /* Encabezado */
+        [data-testid="stHeader"] {{
+            background-color: {colores["fondo"]};
+        }}
+
+        /* Textos generales */
+        h1, h2, h3, h4, h5, h6,
+        p, label,
+        [data-testid="stMarkdownContainer"] {{
+            color: {colores["texto"]};
+        }}
+
+        small,
+        [data-testid="stCaptionContainer"] {{
+            color: {colores["texto_secundario"]};
+        }}
+
+        /* Cargador de archivos */
+        [data-testid="stFileUploaderDropzone"] {{
+            background-color: {colores["fondo_secundario"]};
+            color: {colores["texto"]};
+            border: 1px dashed {colores["borde"]};
+            border-radius: 10px;
+        }}
+
+        [data-testid="stFileUploaderDropzone"] p,
+        [data-testid="stFileUploaderDropzone"] small,
+        [data-testid="stFileUploaderDropzone"] span {{
+            color: {colores["texto"]};
+        }}
+
+        /* Botón Browse files */
+        [data-testid="stFileUploaderDropzone"] button {{
+            background-color: {colores["boton_fondo"]};
+            color: {colores["boton_texto"]} !important;
+            border: 1px solid {colores["borde"]};
+            border-radius: 8px;
+        }}
+
+        [data-testid="stFileUploaderDropzone"] button p,
+        [data-testid="stFileUploaderDropzone"] button span {{
+            color: {colores["boton_texto"]} !important;
+        }}
+
+        [data-testid="stFileUploaderDropzone"] button:hover {{
+            background-color: {colores["boton_hover"]};
+            color: {colores["boton_texto"]} !important;
+            border-color: {colores["primario"]};
+        }}
+
+        /* Inputs y selectores */
+        input,
+        textarea,
+        [data-baseweb="select"] > div {{
+            background-color: {colores["input"]};
+            color: {colores["texto"]};
+            border-color: {colores["borde"]};
+        }}
+
+        /* Botones normales */
+        .stButton > button,
+        .stDownloadButton > button {{
+            background-color: {colores["boton_fondo"]};
+            color: {colores["boton_texto"]} !important;
+            border: 1px solid {colores["borde"]};
+        }}
+
+        .stButton > button p,
+        .stDownloadButton > button p {{
+            color: {colores["boton_texto"]} !important;
+        }}
+
+        .stButton > button:hover,
+        .stDownloadButton > button:hover {{
+            border-color: {colores["primario"]};
+            background-color: {colores["boton_hover"]};
+        }}
+
+        /* Métricas y tablas */
+        [data-testid="stMetric"],
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"] {{
+            background-color: {colores["fondo_secundario"]};
+            border: 1px solid {colores["borde"]};
+            border-radius: 10px;
+            padding: 10px;
+        }}
+
+        hr {{
+            border-color: {colores["borde"]};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # Función principal
 def main():
+        # Inicializar preferencia del tema
+    if "modo_oscuro" not in st.session_state:
+        try:
+            st.session_state.modo_oscuro = (
+                st.context.theme.type == "dark"
+            )
+        except Exception:
+            st.session_state.modo_oscuro = False
+
+    # Sección de apariencia
+    st.sidebar.subheader("🎨 Apariencia")
+
+    modo_oscuro = st.sidebar.toggle(
+        "🌙 Modo oscuro",
+        key="modo_oscuro",
+        help="Cambiar entre el modo claro y oscuro",
+    )
+
+    # Aplicar CSS antes de mostrar el resto de la interfaz
+    aplicar_tema(modo_oscuro)
+
+    st.sidebar.markdown("---")
+    
     # Selector de idioma
     lang = st.sidebar.selectbox("Language/Idioma", list(LANGUAGES.keys()))
     current_lang = LANGUAGES[lang]
