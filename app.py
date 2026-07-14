@@ -1498,7 +1498,12 @@ def main():
                                 t('training_time'): ["~4.15 h", "~7.18 h", "~5.91 h", "~4.00 h", "~4.00 h"]
                             }
                             comparison_df = pd.DataFrame(comparison_data)
-                            st.dataframe(comparison_df)
+
+                            st.dataframe(
+                                comparison_df,
+                                hide_index=True,
+                                use_container_width=True
+                            )
 
                             # MCC y prueba de McNemar
                             st.markdown(
@@ -1578,11 +1583,27 @@ def main():
                                 )
                             
                             # Mostrar MCC para todos los modelos
-                            st.markdown(f"#### {t('mcc')}")
                             mcc_df = pd.DataFrame({
                                 t('model'): list(mcc_results.keys()),
-                                'MCC': [f"{val:.4f}" for val in mcc_results.values()]
+                                'MCC': list(mcc_results.values())
                             })
+
+                            st.dataframe(
+                                mcc_df,
+                                hide_index=True,
+                                use_container_width=True,
+                                column_config={
+                                    t('model'): st.column_config.TextColumn(
+                                        t('model'),
+                                        width="large"
+                                    ),
+                                    "MCC": st.column_config.NumberColumn(
+                                        "MCC",
+                                        format="%.4f",
+                                        width="small"
+                                    )
+                                }
+                            )
                             st.dataframe(mcc_df)
                             st.markdown(f"""
                             **{t('mcc_interpretation')}:**
@@ -1595,29 +1616,53 @@ def main():
                             st.markdown(f"#### {t('mcnemar_test')}")
 
                             # Tabla bilingüe
+                            # Tabla bilingüe de contingencia
                             mcnemar_table_display = pd.DataFrame(
                                 [
                                     [
-                                        mcnemar_results['table'][0][0],
-                                        mcnemar_results['table'][0][1]
+                                        mcnemar_results['table'][1][1],
+                                        mcnemar_results['table'][1][2]
                                     ],
                                     [
-                                        mcnemar_results['table'][1][0],
-                                        mcnemar_results['table'][1][1]
-                                    ],
-                                ],
-                                columns=[
-                                    t('correct'),
-                                    t('incorrect')
+                                        mcnemar_results['table'][2][1],
+                                        mcnemar_results['table'][2][2]
+                                    ]
                                 ],
                                 index=[
-                                    t('correct'),
-                                    t('incorrect')
+                                    f"CNN Simple — {t('correct')}",
+                                    f"CNN Simple — {t('incorrect')}"
+                                ],
+                                columns=[
+                                    f"MobileNetV2 Base — {t('correct')}",
+                                    f"MobileNetV2 Base — {t('incorrect')}"
                                 ]
                             )
 
-                            st.table(mcnemar_table_display)
+                            st.dataframe(
+                                mcnemar_table_display,
+                                use_container_width=True
+                            )
+                            mcnemar_p_value = mcnemar_results['p_value']
 
+                            mcnemar_p_display = (
+                                "< 0.000001"
+                                if mcnemar_p_value < 0.000001
+                                else f"{mcnemar_p_value:.6f}"
+                            )
+
+                            col_mcnemar_1, col_mcnemar_2 = st.columns(2)
+
+                            with col_mcnemar_1:
+                                st.metric(
+                                    label=t('chi2_statistic'),
+                                    value=f"{mcnemar_results['chi2']:.4f}"
+                                )
+
+                            with col_mcnemar_2:
+                                st.metric(
+                                    label=t('p_value'),
+                                    value=mcnemar_p_display
+                                )
                             if mcnemar_results['p_value'] < 0.05:
                                 st.success(
                                     "✅ " + t('statistically_significant_difference')
