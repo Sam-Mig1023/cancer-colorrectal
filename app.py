@@ -55,6 +55,118 @@ class TranslationService:
                 'sidebar_title': 'Project Information',
                 'sidebar_content': 'This system was trained with the [NCT-CRC-HE-100K](https://www.kaggle.com/datasets/imrankhan77/nct-crc-he-100k) dataset:',
                 'footer_note': 'Important note: This application is designed to assist medical professionals and should not be used as the sole diagnostic criterion.',
+
+                'dataset_details': '''
+- 100,000 colorectal tissue images
+- 9 histological classes
+- Resolution: 224×224 pixels
+
+The code used to train the models is available in Google Colab:
+https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
+
+The project is available on GitHub:
+https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
+''',
+
+                'correct': 'Correct',
+                'incorrect': 'Incorrect',
+                # General interface
+                'accuracy': 'Accuracy',
+                'actual': 'Actual',
+                'analysis': 'Analysis',
+                'analyzed_image': 'Analyzed Image',
+                'auc': 'AUC',
+                'average_metrics': 'Average Metrics',
+                'best_model': 'Best Model',
+                'class': 'Class',
+                'code': 'Code',
+                'conclusion': 'Conclusion',
+                'date': 'Date',
+                'diagnosis_results': 'Diagnosis Results',
+                'format': 'Format',
+                'graphs': 'Charts',
+                'important_note': 'Important Note',
+                'minutes': 'minutes',
+                'model': 'Model',
+                'model_used': 'Model Used',
+                'note': 'Note',
+                'prediction': 'Prediction',
+                'probability': 'Probability',
+                'reason': 'Reason',
+                'result': 'Result',
+                'size': 'Size',
+                'summary': 'Summary',
+                'uploaded_image': 'Uploaded Image',
+
+                # Model architecture
+                'batch_normalization': 'Batch normalization',
+                'convolutional_layers': 'Convolutional layers',
+                'dense_layer': 'Dense layer',
+                'fine_tuning_with_custom_dense_layers': 'Fine-tuning with custom dense layers',
+                'hybrid_attention_architecture': 'Hybrid architecture with attention mechanism',
+                'hybrid_autoencoder_architecture': 'Hybrid architecture with autoencoder',
+                'mobilenetv2_base_trained': 'MobileNetV2 base model trained for classification',
+                'neurons': 'neurons',
+                'no_fine_tuning': 'No fine-tuning',
+                'optimized_resnet_architecture': 'Optimized ResNet architecture',
+                'pretrained_on_imagenet': 'Pretrained on ImageNet',
+                'regularization_and_dropout': 'Regularization and dropout',
+                'relu_activation': 'ReLU activation',
+                'simple_cnn_architecture': 'Simple convolutional neural network architecture',
+                'with_maxpooling': 'with max pooling',
+
+                # Training
+                'training_epochs': 'Training Epochs',
+                'training_plots': 'Training Charts',
+                'training_time': 'Training Time',
+                'validation_accuracy': 'Validation Accuracy',
+                'validation_data': 'Validation Data',
+                'validation_loss': 'Validation Loss',
+
+                # Statistical analysis
+                'chi2_statistic': 'Chi-square Statistic',
+                'inverse_prediction': 'Inverse prediction',
+                'mcc_interpretation': 'MCC Interpretation',
+                'p_value': 'p-value',
+                'perfect_prediction': 'Perfect prediction',
+                'random_prediction': 'Random prediction',
+                'roc_curve': 'ROC Curve',
+                'statistically_significant': 'Statistically significant',
+                'not_statistically_significant': 'Not statistically significant',
+                'statistically_significant_difference': 'Statistically significant difference',
+                'no_statistically_significant_difference': 'No statistically significant difference',
+
+                # Binomial statistical validation
+                'statistical_validation_selected_model': 'Statistical Validation of the Selected Model',
+                'binomial_accuracy_test': 'Binomial accuracy test',
+                'observed_accuracy': 'Observed accuracy',
+                'expected_random_accuracy': 'Expected random accuracy',
+                'evaluated_model': 'Evaluated model',
+                'null_hypothesis': 'Null hypothesis',
+                'alternative_hypothesis': 'Alternative hypothesis',
+                'null_hypothesis_text': 'The model accuracy is equal to or lower than the accuracy obtained through random classification.',
+                'alternative_hypothesis_text': 'The model accuracy is higher than the accuracy obtained through random classification.',
+                'correct_predictions': 'Correct predictions',
+                'total_evaluated_images': 'Total evaluated images',
+                'confidence_interval_95': '95% confidence interval',
+                'significance_level': 'Significance level',
+                'accuracy_superior_random': 'The model accuracy is statistically higher than random classification.',
+                'insufficient_evidence_random': 'There is not enough statistical evidence to state that the model accuracy is higher than random classification.',
+                'not_available': 'Not available',
+                # seccion roc
+                'roc_curve_and_auc': 'ROC Curve and AUC',
+                'roc_curves_comparison': 'ROC Curves Comparison',
+                'false_positive_rate': 'False Positive Rate',
+                'true_positive_rate': 'True Positive Rate',
+
+                'attention_mechanisms_description': 'Hybrid architecture with attention mechanisms',
+                'cnn_attention_combination': 'Combines CNN layers with attention layers',
+                'autoencoder_architecture_description': 'Hybrid architecture with an autoencoder',
+                'cnn_autoencoder_combination': 'Combines CNN layers with autoencoder components',
+                # Errors
+                'error_loading_models': 'Error loading the models',
+                'error_loading_training_image': 'Error loading the training image',
+                'error_processing_image': 'Error processing the image',
                 'classes': {
                     'ADI': 'Adipose tissue',
                     'BACK': 'Background',
@@ -89,6 +201,117 @@ class TranslationService:
                 'sidebar_title': 'Información del proyecto',
                 'sidebar_content': 'Este sistema fue entrenado con el dataset [NCT-CRC-HE-100K](https://www.kaggle.com/datasets/imrankhan77/nct-crc-he-100k):',
                 'footer_note': 'Nota importante: Esta aplicación está diseñada para asistir a profesionales médicos y no debe ser utilizada como único criterio diagnóstico.',
+                #
+                'dataset_details': '''
+- 100,000 imágenes de tejido colorrectal
+- 9 clases histológicas
+- Resolución: 224×224 píxeles
+
+El código utilizado para entrenar los modelos se encuentra en Google Colab:
+https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
+
+El proyecto se encuentra disponible en GitHub:
+https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
+''',
+                'correct': 'Correcto',
+                'incorrect': 'Incorrecto',
+                # Interfaz general
+                'accuracy': 'Exactitud',
+                'actual': 'Real',
+                'analysis': 'Análisis',
+                'analyzed_image': 'Imagen analizada',
+                'auc': 'AUC',
+                'average_metrics': 'Métricas promedio',
+                'best_model': 'Mejor modelo',
+                'class': 'Clase',
+                'code': 'Código',
+                'conclusion': 'Conclusión',
+                'date': 'Fecha',
+                'diagnosis_results': 'Resultados del diagnóstico',
+                'format': 'Formato',
+                'graphs': 'Gráficos',
+                'important_note': 'Nota importante',
+                'minutes': 'minutos',
+                'model': 'Modelo',
+                'model_used': 'Modelo utilizado',
+                'note': 'Nota',
+                'prediction': 'Predicción',
+                'probability': 'Probabilidad',
+                'reason': 'Motivo',
+                'result': 'Resultado',
+                'size': 'Tamaño',
+                'summary': 'Resumen',
+                'uploaded_image': 'Imagen cargada',
+
+                # Arquitectura de modelos
+                'batch_normalization': 'Normalización por lotes',
+                'convolutional_layers': 'Capas convolucionales',
+                'dense_layer': 'Capa densa',
+                'fine_tuning_with_custom_dense_layers': 'Ajuste fino con capas densas personalizadas',
+                'hybrid_attention_architecture': 'Arquitectura híbrida con mecanismo de atención',
+                'hybrid_autoencoder_architecture': 'Arquitectura híbrida con autoencoder',
+                'mobilenetv2_base_trained': 'Modelo base MobileNetV2 entrenado para clasificación',
+                'neurons': 'neuronas',
+                'no_fine_tuning': 'Sin ajuste fino',
+                'optimized_resnet_architecture': 'Arquitectura ResNet optimizada',
+                'pretrained_on_imagenet': 'Preentrenado con ImageNet',
+                'regularization_and_dropout': 'Regularización y dropout',
+                'relu_activation': 'Activación ReLU',
+                'simple_cnn_architecture': 'Arquitectura de red neuronal convolucional simple',
+                'with_maxpooling': 'con max pooling',
+
+                # Entrenamiento
+                'training_epochs': 'Épocas de entrenamiento',
+                'training_plots': 'Gráficos de entrenamiento',
+                'training_time': 'Tiempo de entrenamiento',
+                'validation_accuracy': 'Exactitud de validación',
+                'validation_data': 'Datos de validación',
+                'validation_loss': 'Pérdida de validación',
+
+                # Análisis estadístico
+                'chi2_statistic': 'Estadístico chi-cuadrado',
+                'inverse_prediction': 'Predicción inversa',
+                'mcc_interpretation': 'Interpretación del MCC',
+                'p_value': 'Valor p',
+                'perfect_prediction': 'Predicción perfecta',
+                'random_prediction': 'Predicción aleatoria',
+                'roc_curve': 'Curva ROC',
+                'statistically_significant': 'Estadísticamente significativo',
+                'not_statistically_significant': 'No estadísticamente significativo',
+                'statistically_significant_difference': 'Diferencia estadísticamente significativa',
+                'no_statistically_significant_difference': 'No existe una diferencia estadísticamente significativa',
+
+                # Validación estadística binomial
+                'statistical_validation_selected_model': 'Validación estadística del modelo seleccionado',
+                'binomial_accuracy_test': 'Prueba binomial de exactitud',
+                'observed_accuracy': 'Exactitud observada',
+                'expected_random_accuracy': 'Exactitud esperada al azar',
+                'evaluated_model': 'Modelo evaluado',
+                'null_hypothesis': 'Hipótesis nula',
+                'alternative_hypothesis': 'Hipótesis alternativa',
+                'null_hypothesis_text': 'La exactitud del modelo es igual o menor que la obtenida mediante clasificación aleatoria.',
+                'alternative_hypothesis_text': 'La exactitud del modelo es superior a la obtenida mediante clasificación aleatoria.',
+                'correct_predictions': 'Aciertos',
+                'total_evaluated_images': 'Total de imágenes evaluadas',
+                'confidence_interval_95': 'Intervalo de confianza del 95 %',
+                'significance_level': 'Nivel de significancia',
+                'accuracy_superior_random': 'La exactitud del modelo es estadísticamente superior a la clasificación aleatoria.',
+                'insufficient_evidence_random': 'No existe evidencia estadística suficiente para afirmar que la exactitud del modelo sea superior a la clasificación aleatoria.',
+                'not_available': 'No disponible',
+                # seccion roc
+                'roc_curve_and_auc': 'Curva ROC y AUC',
+                'roc_curves_comparison': 'Comparación de curvas ROC',
+                'false_positive_rate': 'Tasa de falsos positivos',
+                'true_positive_rate': 'Tasa de verdaderos positivos',
+
+                'attention_mechanisms_description': 'Arquitectura híbrida con mecanismos de atención',
+                'cnn_attention_combination': 'Combina CNN con capas de atención',
+                'autoencoder_architecture_description': 'Arquitectura híbrida con autoencoder',
+                'cnn_autoencoder_combination': 'Combina CNN con componentes de autoencoder',
+                # Errores
+                'error_loading_models': 'Error al cargar los modelos',
+                'error_loading_training_image': 'Error al cargar la imagen de entrenamiento',
+                'error_processing_image': 'Error al procesar la imagen',
                 'classes': {
                     'ADI': 'Tejido adiposo',
                     'BACK': 'Fondo (background)',
@@ -630,10 +853,10 @@ class PDFReport(FPDF):
         self.ln()
         
         self.set_font('Arial', size=10)
-        for idx, row in prediction_results['probabilities'].iterrows():
-            self.cell(col_widths[0], 10, str(row['Clase']), 1)
-            self.cell(col_widths[1], 10, str(row['Código']), 1)
-            self.cell(col_widths[2], 10, f"{row['Probabilidad (%)']:.2f}", 1)
+        for _, row in prediction_results['probabilities'].iterrows():
+            self.cell(col_widths[0], 10, str(row.iloc[0]), 1)
+            self.cell(col_widths[1], 10, str(row.iloc[1]), 1)
+            self.cell(col_widths[2], 10, f"{float(row.iloc[2]):.2f}", 1)
             self.ln()
     
     def add_graphs_section(self, confusion_matrix_img, roc_curve_img, roc_comparison_img):
@@ -875,7 +1098,7 @@ def main():
                         processed_image = preprocess_image(image, model_name=model_name)
 
                         if processed_image is not None:
-                            if model_name in ['RaeaesNet50V2']:
+                            if model_name in ['ResNet50V2']:
                                 outputs = model(processed_image, training=False)
                                 prediction = list(outputs.values())[0].numpy() if isinstance(outputs, dict) else outputs.numpy()
                             else:
@@ -892,14 +1115,19 @@ def main():
 
                             # Tabla de probabilidades
                             st.subheader("📊 " + t('class_probabilities'))
+
+                            class_column = t('class')
+                            code_column = t('code')
+                            probability_column = f"{t('probability')} (%)"
+
                             prob_df = pd.DataFrame({
-                                'Clase': [t(cn) for cn in CLASS_NAMES],
-                                'Código': CLASS_NAMES,
-                                'Probabilidad (%)': [p * 100 for p in prediction[0]]
-                            }).sort_values('Probabilidad (%)', ascending=False)
+                                class_column: [t(cn) for cn in CLASS_NAMES],
+                                code_column: CLASS_NAMES,
+                                probability_column: [p * 100 for p in prediction[0]]
+                            }).sort_values(probability_column, ascending=False)
 
                             st.dataframe(
-                                prob_df.style.format({'Probabilidad (%)': '{:.2f}'}),
+                                prob_df.style.format({probability_column: '{:.2f}'}),
                                 hide_index=True,
                                 use_container_width=True
                             )
@@ -907,7 +1135,7 @@ def main():
                             # Gráfico de probabilidades
                             st.subheader("📈 " + t('class_probabilities'))
                             fig1, ax1 = plt.subplots(figsize=(10, 5))
-                            ax1.bar(prob_df['Código'], prob_df['Probabilidad (%)'], color='skyblue')
+                            ax1.bar(prob_df[code_column], prob_df[probability_column], color='skyblue')
                             ax1.set_ylabel(t('probability'))
                             ax1.set_title(t('class_probabilities'))
                             plt.xticks(rotation=45)
@@ -932,7 +1160,7 @@ def main():
                             plt.yticks(rotation=0)
                             
                             # Mostrar curva ROC y AUC
-                            st.subheader("📈 ROC Curve & AUC")
+                            st.subheader("📈 " + t('roc_curve_and_auc'))
                             fig_roc, ax_roc = plt.subplots(figsize=(8, 6))
                             
                             # Dibujar la curva ROC para el modelo seleccionado
@@ -940,22 +1168,21 @@ def main():
                                       roc_data[model_name]['tpr'], 
                                       color='darkorange',
                                       lw=2,
-                                      label=f'ROC curve (AUC = {roc_data[model_name]["auc"]:.2f})')
-                            
+                                      label=f'{t("roc_curve")} (AUC = {roc_data[model_name]["auc"]:.2f})')
                             # Línea de referencia (clasificador aleatorio)
                             ax_roc.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
                             
                             ax_roc.set_xlim([0.0, 1.0])
                             ax_roc.set_ylim([0.0, 1.05])
-                            ax_roc.set_xlabel('False Positive Rate')
-                            ax_roc.set_ylabel('True Positive Rate')
-                            ax_roc.set_title(f'ROC Curve - {model_name}')
+                            ax_roc.set_xlabel(t('false_positive_rate'))
+                            ax_roc.set_ylabel(t('true_positive_rate'))
+                            ax_roc.set_title(f"{t('roc_curve')} - {model_name}")
                             ax_roc.legend(loc="lower right")
                             
                             st.pyplot(fig_roc)
                             
                             # Mostrar comparativa de curvas ROC para todos los modelos
-                            st.subheader("📊 ROC Curves Comparison")
+                            st.subheader("📊 " + t('roc_curves_comparison'))
                             fig_roc_all, ax_roc_all = plt.subplots(figsize=(10, 8))
                             
                             # Dibujar todas las curvas ROC
@@ -970,9 +1197,9 @@ def main():
                             
                             ax_roc_all.set_xlim([0.0, 1.0])
                             ax_roc_all.set_ylim([0.0, 1.05])
-                            ax_roc_all.set_xlabel('False Positive Rate')
-                            ax_roc_all.set_ylabel('True Positive Rate')
-                            ax_roc_all.set_title('ROC Curves Comparison')
+                            ax_roc_all.set_xlabel(t('false_positive_rate'))
+                            ax_roc_all.set_ylabel(t('true_positive_rate'))
+                            ax_roc_all.set_title(t('roc_curves_comparison'))
                             ax_roc_all.legend(loc="lower right")
                             
                             st.pyplot(fig_roc_all)
@@ -1054,8 +1281,8 @@ def main():
                             elif model_name == 'Hybrid Attention':
                                 st.markdown(f"""
                                 **{t('hybrid_attention_architecture')}:**
-                                - Arquitectura híbrida con mecanismos de atención
-                                - Combina CNN con capas de atención
+                                - {t('attention_mechanisms_description')}
+                                - {t('cnn_attention_combination')}
                                 - {t('validation_accuracy')}: 14.5%
                                 """)
                                 accuracy = 0.1450
@@ -1064,8 +1291,8 @@ def main():
                             elif model_name == 'Hybrid Autoencoder':
                                 st.markdown(f"""
                                 **{t('hybrid_autoencoder_architecture')}:**
-                                - Arquitectura híbrida con autoencoder
-                                - Combina CNN con componentes de autoencoder
+                                - {t('autoencoder_architecture_description')}
+                                - {t('cnn_autoencoder_combination')}
                                 - {t('validation_accuracy')}: 15.00%
                                 """)
                                 accuracy = 0.1500
@@ -1101,8 +1328,13 @@ def main():
                             st.dataframe(comparison_df)
 
                             # MCC y prueba de McNemar
-                            st.subheader("📈 " + t('statistical_analysis'))
-                            st.markdown("### 🧪 Prueba binomial de exactitud")
+                            st.markdown(
+                                f"### 🧪 {t('statistical_validation_selected_model')}"
+                            )
+
+                            st.caption(
+                                f"{t('binomial_accuracy_test')}"
+                            )
 
                             selected_confusion_matrix = confusion_matrices[model_name]
 
@@ -1114,59 +1346,63 @@ def main():
 
                             with col_stat_1:
                                 st.metric(
-                                    label="Exactitud observada",
+                                    label=t('observed_accuracy'),
                                     value=f"{binomial_result['accuracy'] * 100:.2f} %"
                                 )
 
                             with col_stat_2:
                                 st.metric(
-                                    label="Exactitud esperada al azar",
+                                    label=t('expected_random_accuracy'),
                                     value=f"{binomial_result['expected_accuracy'] * 100:.2f} %"
                                 )
 
                             with col_stat_3:
                                 p_value = binomial_result["p_value"]
-
                                 st.metric(
-                                    label="Valor p",
+                                    label=t('p_value'),
                                     value=(
-                                        f"{p_value:.6f}"
+                                        "< 0.000001"
+                                        if p_value is not None and p_value < 0.000001
+                                        else f"{p_value:.6f}"
                                         if p_value is not None
-                                        else "No disponible"
+                                        else t('not_available')
                                     )
                                 )
 
                             st.markdown(
                                 f"""
-                            **Modelo evaluado:** {model_name}
+                            **{t('evaluated_model')}:** {model_name}
 
-                            **Hipótesis nula (H₀):** la exactitud del modelo es igual o menor que
-                            la obtenida mediante clasificación aleatoria.
+                            **{t('null_hypothesis')} (H₀):**  
+                            {t('null_hypothesis_text')}
 
-                            **Hipótesis alternativa (H₁):** la exactitud del modelo es superior
-                            a la clasificación aleatoria.
+                            **{t('alternative_hypothesis')} (H₁):**  
+                            {t('alternative_hypothesis_text')}
 
-                            **Aciertos:** {binomial_result['correct_predictions']}
+                            **{t('correct_predictions')}:**  
+                            {binomial_result['correct_predictions']}
 
-                            **Total de imágenes evaluadas:** {binomial_result['total_samples']}
+                            **{t('total_evaluated_images')}:**  
+                            {binomial_result['total_samples']}
 
-                            **Intervalo de confianza del 95 %:**
+                            **{t('confidence_interval_95')}:**
 
                             {binomial_result['ci_lower'] * 100:.2f} % –
                             {binomial_result['ci_upper'] * 100:.2f} %
 
-                            **Nivel de significancia:** α = 0.05
+                            **{t('significance_level')}:** α = 0.05
                             """
                             )
+                    
 
                             if binomial_result["significant"]:
                                 st.success(
-                                    "✅ " + binomial_result["interpretation"]
+                                    "✅ " + t('accuracy_superior_random')
                                 )
                             else:
                                 st.warning(
-                                    "⚠️ " + binomial_result["interpretation"]
-                                )   
+                                    "⚠️ " + t('insufficient_evidence_random')
+                                )
                             
                             # Mostrar MCC para todos los modelos
                             st.markdown(f"#### {t('mcc')}")
@@ -1184,32 +1420,50 @@ def main():
 
                             # Mostrar prueba de McNemar
                             st.markdown(f"#### {t('mcnemar_test')}")
-                            st.table(mcnemar_results['table'])
-                            st.markdown(f"**{t('chi2_statistic')}:** {mcnemar_results['chi2']:.4f}")
-                            st.markdown(f"**{t('p_value')}:** {mcnemar_results['p_value']:.4f}")
-                            
-                            if mcnemar_results['p_value'] < 0.05:
-                                st.success(f"**{t('result')}:** {t('statistically_significant_difference')} (p < 0.05)")
-                            else:
-                                st.warning(f"**{t('result')}:** {t('no_statistically_significant_difference')} (p ≥ 0.05)")
 
-            else:
-                st.warning("⚠️ " + t('error_loading_models'))
+                            # Tabla bilingüe
+                            mcnemar_table_display = pd.DataFrame(
+                                [
+                                    [
+                                        mcnemar_results['table'][0][0],
+                                        mcnemar_results['table'][0][1]
+                                    ],
+                                    [
+                                        mcnemar_results['table'][1][0],
+                                        mcnemar_results['table'][1][1]
+                                    ],
+                                ],
+                                columns=[
+                                    t('correct'),
+                                    t('incorrect')
+                                ],
+                                index=[
+                                    t('correct'),
+                                    t('incorrect')
+                                ]
+                            )
+
+                            st.table(mcnemar_table_display)
+
+                            if mcnemar_results['p_value'] < 0.05:
+                                st.success(
+                                    "✅ " + t('statistically_significant_difference')
+                                )
+                            else:
+                                st.warning(
+                                    "⚠️ " + t('no_statistically_significant_difference')
+                                )
+                        else:
+                            st.warning("⚠️ " + t('error_loading_models'))
         except Exception as e:
             st.error(f"{t('error_processing_image')}: {str(e)}")
 
     # Sidebar con info del dataset
     st.sidebar.markdown("---")
     st.sidebar.header(f"📚 {t('sidebar_title')}")
-    st.sidebar.markdown(t('sidebar_content') + """
-- 100,000 imágenes de tejido colon-rectal  
-- 9 clases histológicas  
-- Resolución: 224×224 píxeles
-
-El codigo utilizado para entrenar los modelos se encuentra en Google colab (https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing)
-                    
-Este proyecto a sido subido a GitHub, el cual se encuentra en este enlace: (https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git)
-""")
+    st.sidebar.markdown(
+    t('sidebar_content') + "\n\n" + t('dataset_details')
+)
 
     # Footer
     st.markdown("---")
