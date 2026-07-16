@@ -3,7 +3,7 @@ import h5py
 import json
 import tensorflow as tf
 from tensorflow import keras
-
+from tensorflow.keras.models import Sequential
 h5_path = 'models/mobilenetv2_base_only.h5'
 
 with h5py.File(h5_path, 'r') as f:
@@ -12,7 +12,7 @@ with h5py.File(h5_path, 'r') as f:
 
 print("Creating model from config without building...")
 # Try to create model with custom code to avoid building
-from tensorflow.keras.models import Sequential
+
 
 # Temporarily override the Sequential.add method to skip _maybe_rebuild()
 original_add = Sequential.add

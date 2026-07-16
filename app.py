@@ -57,19 +57,24 @@ class TranslationService:
                 'footer_note': 'Important note: This application is designed to assist medical professionals and should not be used as the sole diagnostic criterion.',
 
                 'dataset_details': '''
-- 100,000 colorectal tissue images
-- 9 histological classes
-- Resolution: 224×224 pixels
+                - 100,000 colorectal tissue images
+                - 9 histological classes
+                - Resolution: 224×224 pixels
 
-The code used to train the models is available in Google Colab:
-https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
+                The code used to train the models is available in Google Colab:
+                https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
 
-The project is available on GitHub:
-https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
-''',
-
+                The project is available on GitHub:
+                https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
+                ''',
+                # Diagnosis results
                 'correct': 'Correct',
                 'incorrect': 'Incorrect',
+                # Appearance
+                'appearance': 'Appearance',
+                'dark_mode': 'Dark mode',
+                'theme_help': 'Switch between light and dark mode',
+
                 # General interface
                 'accuracy': 'Accuracy',
                 'actual': 'Actual',
@@ -203,18 +208,23 @@ https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
                 'footer_note': 'Nota importante: Esta aplicación está diseñada para asistir a profesionales médicos y no debe ser utilizada como único criterio diagnóstico.',
                 #
                 'dataset_details': '''
-- 100,000 imágenes de tejido colorrectal
-- 9 clases histológicas
-- Resolución: 224×224 píxeles
+                - 100,000 imágenes de tejido colorrectal
+                - 9 clases histológicas
+                - Resolución: 224×224 píxeles
 
-El código utilizado para entrenar los modelos se encuentra en Google Colab:
-https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
+                El código utilizado para entrenar los modelos se encuentra en Google Colab:
+                https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
 
-El proyecto se encuentra disponible en GitHub:
-https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
-''',
+                El proyecto se encuentra disponible en GitHub:
+                https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
+                ''',
                 'correct': 'Correcto',
                 'incorrect': 'Incorrecto',
+                # Appearance
+                'appearance': 'Apariencia',
+                'dark_mode': 'Modo oscuro',
+                'theme_help': 'Cambia entre modo claro y oscuro',
+
                 # Interfaz general
                 'accuracy': 'Exactitud',
                 'actual': 'Real',
@@ -1198,7 +1208,13 @@ def aplicar_tema(modo_oscuro: bool) -> None:
 
 # Función principal
 def main():
-        # Inicializar preferencia del tema
+    
+    # Selector de idioma
+    lang = st.sidebar.selectbox("Language/Idioma", list(LANGUAGES.keys()))
+    current_lang = LANGUAGES[lang]
+    t = lambda key: translator.get(key, current_lang)
+
+    # Inicializar preferencia del tema
     if "modo_oscuro" not in st.session_state:
         try:
             st.session_state.modo_oscuro = (
@@ -1208,12 +1224,14 @@ def main():
             st.session_state.modo_oscuro = False
 
     # Sección de apariencia
-    st.sidebar.subheader("🎨 Apariencia")
+    st.sidebar.subheader(
+        "🎨 " + t('appearance')
+    )
 
     modo_oscuro = st.sidebar.toggle(
-        "🌙 Modo oscuro",
+        "🌙 " + t('dark_mode'),
         key="modo_oscuro",
-        help="Cambiar entre el modo claro y oscuro",
+        help=t('theme_help'),
     )
 
     # Aplicar CSS antes de mostrar el resto de la interfaz
@@ -1221,17 +1239,12 @@ def main():
 
     st.sidebar.markdown("---")
     
-    # Selector de idioma
-    lang = st.sidebar.selectbox("Language/Idioma", list(LANGUAGES.keys()))
-    current_lang = LANGUAGES[lang]
-    t = lambda key: translator.get(key, current_lang)
-    
     # Configuración del menú "About" según idioma
     about_text = {
         'en': "Application for assisted diagnosis of colorectal cancer using deep learning",
         'es': "Aplicación para diagnóstico asistido de cáncer colon-rectal usando deep learning"
     }.get(current_lang, "Colorectal cancer diagnosis application")
-    
+    st.sidebar.caption(about_text)
     # Título y descripción
     st.title(t('title'))
     st.markdown(t('description'))
@@ -1604,7 +1617,7 @@ def main():
                                     )
                                 }
                             )
-                            st.dataframe(mcc_df)
+                            
                             st.markdown(f"""
                             **{t('mcc_interpretation')}:**
                             - 1: {t('perfect_prediction')}
