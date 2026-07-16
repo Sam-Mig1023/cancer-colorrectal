@@ -1,5 +1,7 @@
 ﻿import type { HealthResponse, LegacyAnalysisResponse, LegacyDatasetResponse, LegacyTrainingResponse, ModelInfo, PredictionResponse } from "@/types/api";
 
+import type { ChatRequest, ChatResponse } from "@/types/api";
+
 const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -45,6 +47,11 @@ export const api = {
   legacyTraining: () => request<LegacyTrainingResponse>("/api/v1/legacy/training"),
   legacyDataset: (language: string) => request<LegacyDatasetResponse>(`/api/v1/legacy/dataset?language=${encodeURIComponent(language)}`),
   report: (payload: PredictionResponse & { language: string }) => requestBlob("/api/v1/legacy/report", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }),
+  chat: (payload: ChatRequest) => request<ChatResponse>("/api/v1/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

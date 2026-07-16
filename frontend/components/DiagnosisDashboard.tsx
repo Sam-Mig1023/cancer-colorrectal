@@ -30,6 +30,7 @@ import type {
 } from "@/types/api";
 import es from "@/messages/es.json";
 import en from "@/messages/en.json";
+import HelpChatbot from "@/components/HelpChatbot";
 
 type Language = "es" | "en";
 type Connection = "checking" | "connected" | "disconnected";
@@ -302,6 +303,13 @@ export default function DiagnosisDashboard() {
           />
         </div>
       </div>
+      <HelpChatbot
+        language={language}
+        t={t}
+        activeTab={activeTab}
+        selectedModel={selectedModel}
+        result={result}
+      />
     </main>
   );
 }

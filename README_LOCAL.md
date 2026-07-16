@@ -6,10 +6,14 @@ Desde la raiz del proyecto, instale las dependencias del backend y ejecute el se
 
 ```powershell
 python -m pip install -r backend/requirements.txt
+Copy-Item backend/.env.example backend/.env
+# Edite backend/.env y reemplace GROQ_API_KEY con su clave real.
 python -m uvicorn backend.app.main:app --reload --port 8000
 ```
 
 Compruebe `http://127.0.0.1:8000/docs` antes de abrir el frontend.
+
+La clave de Groq se configura solo en el backend mediante `GROQ_API_KEY`; no la escriba en el frontend ni la confirme al repositorio. Puede copiar `backend/.env.example` como referencia. El chatbot envía a Groq el texto de la conversación y el resumen del resultado mostrado, pero no la imagen cargada.
 
 ## 2. Frontend Next.js
 

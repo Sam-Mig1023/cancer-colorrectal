@@ -1,11 +1,12 @@
-﻿from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 
 from .config import CLASS_NAMES, DEFAULT_MODEL, MODEL_SPECS
+from .groq_chat import GroqConnectionError, GroqTimeoutError, GroqUpstreamError, ask_groq
 from .inference import ImageValidationError, model_service
 from .legacy_analysis import TRAINING_PLOT_PATH, build_report_pdf, legacy_analysis_payload, legacy_dataset_payload, legacy_training_payload
-from .schemas import HealthResponse, LegacyReportRequest, ModelResponse, PredictionResponse
+from .schemas import ChatRequest, ChatResponse, HealthResponse, LegacyReportRequest, ModelResponse, PredictionResponse
 
 
 app = FastAPI(
@@ -17,7 +18,7 @@ app = FastAPI(
 # Next.js runs on a separate local port during development.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001"],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
@@ -110,3 +111,27 @@ def legacy_report(payload: LegacyReportRequest) -> Response:
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@app.post("/api/v1/chat", response_model=ChatResponse, tags=["assistant"])
+async def chat(payload: ChatRequest) -> ChatResponse:
+    try:
+        answer, model = await ask_groq(payload)
+    except RuntimeError as exc:
+        if str(exc) == "GROQ_API_KEY_NOT_CONFIGURED":
+            raise HTTPException(status_code=503, detail="The Groq assistant is not configured.") from exc
+        raise
+    except GroqTimeoutError as exc:
+        raise HTTPException(status_code=504, detail="Groq did not respond in time.") from exc
+    except GroqUpstreamError as exc:
+        status = exc.status_code
+        if status == 401:
+            raise HTTPException(status_code=401, detail="The Groq API credentials are not valid.") from exc
+        if status == 403:
+            raise HTTPException(status_code=403, detail="The configured Groq model is not permitted for this account.") from exc
+        if status == 429:
+            raise HTTPException(status_code=429, detail="The Groq API request limit was reached.") from exc
+        raise HTTPException(status_code=502, detail="Groq could not complete the response.") from exc
+    except (GroqConnectionError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail="Groq returned an invalid response.") from exc
+    return ChatResponse(answer=answer, model=model)
