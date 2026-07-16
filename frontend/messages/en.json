@@ -1,4 +1,4 @@
-﻿{
+{
   "appName": "Colorectal diagnosis",
   "subtitle": "Academic support system for histopathology images",
   "connection": "FastAPI connection",
@@ -58,6 +58,12 @@
   "expectedAccuracy": "Expected random accuracy",
   "binomialTest": "Binomial test",
   "mccDescription": "Matthews coefficient",
+  "confidenceInterval": "95% confidence interval",
+  "interpretation": "Interpretation",
+  "significant": "Significant",
+  "notSignificant": "Not significant",
+  "rocComparison": "Model ROC comparison",
+  "mcnemarTable": "McNemar contingency table",
   "modelComparison": "Model comparison",
   "model": "Model",
   "validationAccuracy": "Validation accuracy",

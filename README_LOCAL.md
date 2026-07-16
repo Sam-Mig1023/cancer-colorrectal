@@ -1,4 +1,4 @@
-﻿# Ejecucion local sin Docker
+# Ejecucion local sin Docker
 
 ## 1. Backend FastAPI
 
@@ -46,3 +46,21 @@ python -m compileall -q backend
 cd frontend
 npm run build
 ```
+## Paridad funcional migrada
+
+La migracion FastAPI + Next.js cubre actualmente las funciones visibles de `app.py` relacionadas con diagnostico, analisis heredado, entrenamiento, dataset y reporte:
+
+- Diagnostico con modelos TensorFlow/Keras desde `POST /api/v1/predict`.
+- Carga por clic y arrastrar/soltar desde Next.js, con validacion de formato y tamano.
+- Matriz de confusion por modelo.
+- Curva ROC individual y comparacion ROC de todos los modelos.
+- AUC, MCC, prueba binomial, p-value e intervalo de confianza del 95%.
+- Interpretacion estadistica de la prueba binomial.
+- Prueba de McNemar con chi2, p-value, significancia, interpretacion y tabla de contingencia.
+- Comparacion de modelos con exactitud, perdida y tiempo de entrenamiento.
+- Informacion/arquitectura de modelos.
+- Grafico de entrenamiento heredado.
+- Informacion de dataset y enlaces Kaggle/Colab/GitHub.
+- Reporte PDF generado desde FastAPI con diagnostico, probabilidades, analisis heredado, matriz, comparacion y McNemar.
+
+Los analisis siguen marcados como `legacy_precomputed_from_streamlit`: son valores heredados/precalculados de Streamlit, no un nuevo pipeline de evaluacion reproducible.

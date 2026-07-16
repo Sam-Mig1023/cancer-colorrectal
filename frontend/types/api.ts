@@ -1,4 +1,4 @@
-﻿export interface HealthResponse {
+export interface HealthResponse {
   status: string;
   models_available: number;
   models_total: number;
@@ -29,11 +29,17 @@ export interface LegacyBinomialTest {
   p_value: number;
   significant: boolean;
   confidence_interval_95: {
-    lower: number | null;
-    upper: number | null;
+    lower: number;
+    upper: number;
     method: string;
   };
   interpretation: string;
+}
+
+export interface LegacyRocCurve {
+  fpr: number[];
+  tpr: number[];
+  auc: number;
 }
 
 export interface LegacyModelAnalysis {
@@ -41,11 +47,7 @@ export interface LegacyModelAnalysis {
   model_key: string;
   classes: string[];
   confusion_matrix: number[][];
-  roc: {
-    fpr: number[];
-    tpr: number[];
-    auc: number;
-  };
+  roc: LegacyRocCurve;
   mcc: number;
   binomial_accuracy_test: LegacyBinomialTest;
   architecture: string[];
@@ -66,13 +68,16 @@ export interface LegacyAnalysisResponse {
   source: string;
   classes: string[];
   models: LegacyModelAnalysis[];
+  roc_comparison: Array<{ name: string; model_key: string; roc: LegacyRocCurve }>;
   model_comparison: LegacyComparisonRow[];
   mcnemar_test: {
     table: (string | number)[][];
     chi2: number;
     p_value: number | null;
+    significant: boolean;
     method: string;
     models: string[];
+    interpretation: string;
   };
 }
 

@@ -359,7 +359,7 @@ function SidebarNavigation({
         <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-800">
           <p className="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">{t.result}</p>
           <p className="mt-1 font-medium text-slate-950 dark:text-slate-100">
-            {result ? `${result.predicted_class} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${result.confidence.toFixed(2)}%` : t.emptyResult}
+            {result ? `${result.predicted_class} - ${result.confidence.toFixed(2)}%` : t.emptyResult}
           </p>
         </div>
       </div>
@@ -545,17 +545,28 @@ function AnalysisView({ t, legacy, selectedLegacy, matrixMax, rocPoints }: {
   matrixMax: number;
   rocPoints: string;
 }) {
+  const binomial = selectedLegacy.binomial_accuracy_test;
+  const ci = binomial.confidence_interval_95;
+  const ciValue = `${percent(ci.lower)} - ${percent(ci.upper)}`;
+  const palette = ["#0f766e", "#2563eb", "#9333ea", "#dc2626", "#ca8a04"];
+
   return (
     <section className="space-y-4">
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
         <strong>{t.legacyNoticeTitle}</strong> {legacy.source}. {t.legacyNoticeBody}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 lg:grid-cols-5">
         <MetricBlock label="AUC" value={selectedLegacy.roc.auc.toFixed(2)} detail={t.rocCurve} />
         <MetricBlock label="MCC" value={selectedLegacy.mcc.toFixed(4)} detail={t.mccDescription} />
-        <MetricBlock label={t.observedAccuracy} value={percent(selectedLegacy.binomial_accuracy_test.accuracy)} detail={`${selectedLegacy.binomial_accuracy_test.correct_predictions}/${selectedLegacy.binomial_accuracy_test.total_samples}`} />
-        <MetricBlock label="p-value" value={selectedLegacy.binomial_accuracy_test.p_value.toExponential(2)} detail={t.binomialTest} />
+        <MetricBlock label={t.observedAccuracy} value={percent(binomial.accuracy)} detail={`${binomial.correct_predictions}/${binomial.total_samples}`} />
+        <MetricBlock label="p-value" value={binomial.p_value.toExponential(2)} detail={binomial.significant ? t.significant : t.notSignificant} tone={binomial.significant ? "strong" : "default"} />
+        <MetricBlock label={t.confidenceInterval} value={ciValue} detail={ci.method} />
+      </div>
+
+      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-lg font-semibold">{t.interpretation}</h2>
+        <p className="mt-2 text-slate-700 dark:text-slate-300">{binomial.interpretation}</p>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
@@ -568,12 +579,7 @@ function AnalysisView({ t, legacy, selectedLegacy, matrixMax, rocPoints }: {
               {selectedLegacy.confusion_matrix.flatMap((row, rowIndex) => [
                 <div key={`label-${rowIndex}`} className="flex items-center justify-end pr-2 text-xs font-semibold text-slate-500">{selectedLegacy.classes[rowIndex]}</div>,
                 ...row.map((value, colIndex) => (
-                  <div
-                    key={`${rowIndex}-${colIndex}`}
-                    title={`${selectedLegacy.classes[rowIndex]} -> ${selectedLegacy.classes[colIndex]}`}
-                    className="min-h-10 rounded-sm p-2 text-center text-xs font-semibold text-slate-950"
-                    style={{ backgroundColor: `rgba(20, 184, 166, ${0.1 + (value / matrixMax) * 0.8})` }}
-                  >
+                  <div key={`${rowIndex}-${colIndex}`} title={`${selectedLegacy.classes[rowIndex]} -> ${selectedLegacy.classes[colIndex]}`} className="min-h-10 rounded-sm p-2 text-center text-xs font-semibold text-slate-950" style={{ backgroundColor: `rgba(20, 184, 166, ${0.1 + (value / matrixMax) * 0.8})` }}>
                     {value}
                   </div>
                 )),
@@ -590,45 +596,48 @@ function AnalysisView({ t, legacy, selectedLegacy, matrixMax, rocPoints }: {
           </svg>
           <div className="mt-4 rounded-md bg-slate-50 p-3 text-sm text-slate-700 dark:bg-slate-950 dark:text-slate-300">
             <h3 className="font-semibold">{t.modelInfo}</h3>
-            <ul className="mt-2 space-y-1">
-              {selectedLegacy.architecture.map((item) => <li key={item}>- {item}</li>)}
-            </ul>
+            <ul className="mt-2 space-y-1">{selectedLegacy.architecture.map((item) => <li key={item}>- {item}</li>)}</ul>
           </div>
         </div>
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h2 className="mb-4 text-lg font-semibold">{t.modelComparison}</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[680px] border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500 dark:border-slate-800 dark:text-slate-400">
-                <th className="py-3 pr-4 font-semibold">{t.model}</th>
-                <th className="py-3 pr-4 font-semibold">{t.validationAccuracy}</th>
-                <th className="py-3 pr-4 font-semibold">{t.validationLoss}</th>
-                <th className="py-3 pr-4 font-semibold">{t.trainingTime}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {legacy.model_comparison.map((row) => (
-                <tr key={row.model_key} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="py-3 pr-4 font-medium">{row.name}</td>
-                  <td className="py-3 pr-4">{percent(row.validation_accuracy)}</td>
-                  <td className="py-3 pr-4">{row.validation_loss.toFixed(4)}</td>
-                  <td className="py-3 pr-4">{row.training_time_hours.toFixed(2)} h</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <h2 className="mb-4 text-lg font-semibold">{t.rocComparison}</h2>
+        <svg viewBox="0 0 100 100" className="h-80 w-full rounded-md border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950" role="img" aria-label={t.rocComparison}>
+          <line x1="0" y1="100" x2="100" y2="0" stroke="#94a3b8" strokeDasharray="4 4" strokeWidth="1.2" />
+          {legacy.roc_comparison.map((item, index) => (
+            <polyline key={item.model_key} points={item.roc.fpr.map((fpr, pointIndex) => `${fpr * 100},${100 - item.roc.tpr[pointIndex] * 100}`).join(" ")} fill="none" stroke={palette[index % palette.length]} strokeWidth={item.model_key === selectedLegacy.model_key ? 2.8 : 1.8} />
+          ))}
+        </svg>
+        <div className="mt-3 flex flex-wrap gap-3 text-sm">
+          {legacy.roc_comparison.map((item, index) => (
+            <span key={item.model_key} className="inline-flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ backgroundColor: palette[index % palette.length] }} />{item.name} AUC {item.roc.auc.toFixed(2)}</span>
+          ))}
         </div>
-        <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
-          {t.mcnemarTest}: chi2 {legacy.mcnemar_test.chi2.toFixed(4)}, p-value {legacy.mcnemar_test.p_value === null ? "N/A" : legacy.mcnemar_test.p_value.toFixed(6)}
-        </p>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-4 text-lg font-semibold">{t.modelComparison}</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] border-collapse text-sm">
+              <thead><tr className="border-b border-slate-200 text-left text-slate-500 dark:border-slate-800 dark:text-slate-400"><th className="py-3 pr-4 font-semibold">{t.model}</th><th className="py-3 pr-4 font-semibold">{t.validationAccuracy}</th><th className="py-3 pr-4 font-semibold">{t.validationLoss}</th><th className="py-3 pr-4 font-semibold">{t.trainingTime}</th></tr></thead>
+              <tbody>{legacy.model_comparison.map((row) => <tr key={row.model_key} className="border-b border-slate-100 dark:border-slate-800"><td className="py-3 pr-4 font-medium">{row.name}</td><td className="py-3 pr-4">{percent(row.validation_accuracy)}</td><td className="py-3 pr-4">{row.validation_loss.toFixed(4)}</td><td className="py-3 pr-4">{row.training_time_hours.toFixed(2)} h</td></tr>)}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-4 text-lg font-semibold">{t.mcnemarTest}</h2>
+          <div className="grid grid-cols-2 gap-3"><MetricBlock label="chi2" value={legacy.mcnemar_test.chi2.toFixed(4)} /><MetricBlock label="p-value" value={legacy.mcnemar_test.p_value === null ? "N/A" : legacy.mcnemar_test.p_value.toExponential(2)} detail={legacy.mcnemar_test.significant ? t.significant : t.notSignificant} tone={legacy.mcnemar_test.significant ? "strong" : "default"} /></div>
+          <p className="mt-4 text-sm text-slate-700 dark:text-slate-300">{legacy.mcnemar_test.interpretation}</p>
+          <h3 className="mb-2 mt-4 text-sm font-semibold">{t.mcnemarTable}</h3>
+          <div className="overflow-x-auto"><table className="w-full min-w-[420px] border-collapse text-sm"><tbody>{legacy.mcnemar_test.table.map((row, rowIndex) => <tr key={rowIndex} className="border-b border-slate-100 dark:border-slate-800">{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`} className="py-2 pr-3 font-medium text-slate-700 dark:text-slate-300">{cell}</td>)}</tr>)}</tbody></table></div>
+        </div>
       </div>
     </section>
   );
 }
-
 function TrainingView({ t, training }: { t: typeof es; training: LegacyTrainingResponse | null }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">

@@ -1,4 +1,4 @@
-﻿{
+{
   "appName": "Diagnostico colorrectal",
   "subtitle": "Sistema de apoyo academico para imagenes histopatologicas",
   "connection": "Conexion con FastAPI",
@@ -58,6 +58,12 @@
   "expectedAccuracy": "Exactitud aleatoria esperada",
   "binomialTest": "Prueba binomial",
   "mccDescription": "Coeficiente de Matthews",
+  "confidenceInterval": "Intervalo de confianza 95%",
+  "interpretation": "Interpretacion",
+  "significant": "Significativo",
+  "notSignificant": "No significativo",
+  "rocComparison": "Comparacion ROC de modelos",
+  "mcnemarTable": "Tabla de contingencia McNemar",
   "modelComparison": "Comparacion de modelos",
   "model": "Modelo",
   "validationAccuracy": "Exactitud de validacion",

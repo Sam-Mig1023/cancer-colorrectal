@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import math
 from pathlib import Path
@@ -83,27 +83,54 @@ def _binomial_tail(k: int, n: int, p: float) -> float:
 
 
 def _confidence_interval(correct: int, total: int) -> dict[str, Any]:
+    if total <= 0:
+        return {"lower": 0.0, "upper": 0.0, "method": "wilson_score_95"}
     try:
         from scipy.stats import beta
+        alpha = 0.05
+        lower = 0.0 if correct == 0 else float(beta.ppf(alpha / 2, correct, total - correct + 1))
+        upper = 1.0 if correct == total else float(beta.ppf(1 - alpha / 2, correct + 1, total - correct))
+        return {"lower": lower, "upper": upper, "method": "clopper_pearson"}
     except Exception:
-        return {"lower": None, "upper": None, "method": "clopper_pearson_requires_scipy"}
-    if total <= 0:
-        return {"lower": 0.0, "upper": 0.0, "method": "clopper_pearson"}
-    alpha = 0.05
-    lower = 0.0 if correct == 0 else float(beta.ppf(alpha / 2, correct, total - correct + 1))
-    upper = 1.0 if correct == total else float(beta.ppf(1 - alpha / 2, correct + 1, total - correct))
-    return {"lower": lower, "upper": upper, "method": "clopper_pearson"}
+        z = 1.959963984540054
+        phat = correct / total
+        denominator = 1 + z**2 / total
+        center = (phat + z**2 / (2 * total)) / denominator
+        margin = z * math.sqrt((phat * (1 - phat) + z**2 / (4 * total)) / total) / denominator
+        return {"lower": max(0.0, center - margin), "upper": min(1.0, center + margin), "method": "wilson_score_95"}
 
 
-def _binomial(matrix: list[list[int]]) -> dict[str, Any]:
+def _binomial_interpretation(significant: bool, language: str) -> str:
+    if language == "en":
+        return "The observed accuracy is statistically higher than random classification." if significant else "There is not enough statistical evidence to state that accuracy is higher than random classification."
+    return "La exactitud observada es estadisticamente superior a la clasificacion aleatoria." if significant else "No hay evidencia estadistica suficiente para afirmar que la exactitud sea superior a la clasificacion aleatoria."
+
+
+def _mcnemar_interpretation(p_value: float | None, language: str) -> str:
+    significant = p_value is not None and p_value < 0.05
+    if language == "en":
+        return "There is a statistically significant difference between CNN Simple and MobileNetV2 Base." if significant else "No statistically significant difference was detected between CNN Simple and MobileNetV2 Base."
+    return "Existe una diferencia estadisticamente significativa entre CNN Simple y MobileNetV2 Base." if significant else "No se detecto una diferencia estadisticamente significativa entre CNN Simple y MobileNetV2 Base."
+
+
+def _binomial(matrix: list[list[int]], language: str = "es") -> dict[str, Any]:
     accuracy, correct, total = _accuracy(matrix)
     expected = 1 / len(CLASS_NAMES)
     p_value = _binomial_tail(correct, total, expected)
-    interval = _confidence_interval(correct, total)
-    return {"accuracy": accuracy, "correct_predictions": correct, "total_samples": total, "expected_accuracy": expected, "p_value": p_value, "significant": p_value < 0.05 and accuracy > expected, "confidence_interval_95": interval, "interpretation": "legacy_streamlit_binomial_accuracy_test"}
+    significant = p_value < 0.05 and accuracy > expected
+    return {
+        "accuracy": accuracy,
+        "correct_predictions": correct,
+        "total_samples": total,
+        "expected_accuracy": expected,
+        "p_value": p_value,
+        "significant": significant,
+        "confidence_interval_95": _confidence_interval(correct, total),
+        "interpretation": _binomial_interpretation(significant, language),
+    }
 
 
-def _mcnemar() -> dict[str, Any]:
+def _mcnemar(language: str = "es") -> dict[str, Any]:
     matrix1 = np.asarray(CONFUSION_MATRICES["CNN Simple"])
     matrix2 = np.asarray(CONFUSION_MATRICES["MobileNetV2 Base"])
     correct1 = int(np.diag(matrix1).sum())
@@ -113,24 +140,48 @@ def _mcnemar() -> dict[str, Any]:
     b = max(0, incorrect1 - (int(matrix1.sum()) - correct2))
     c = max(0, incorrect2 - (int(matrix2.sum()) - correct1))
     chi2_stat = ((abs(b - c) - 1) ** 2 / (b + c)) if (b + c) > 0 else 0.0
-    try:
-        from scipy.stats import chi2
-        p_value = float(1 - chi2.cdf(chi2_stat, 1))
-        method = "chi_squared_with_continuity_correction"
-    except Exception:
-        p_value = None
-        method = "chi_squared_p_value_requires_scipy"
-    return {"table": [["", "MobileNetV2 Correct", "MobileNetV2 Incorrect"], ["CNN Simple Correct", correct1, b], ["Simple Incorrect", c, incorrect1]], "chi2": chi2_stat, "p_value": p_value, "method": method, "models": ["CNN Simple", "MobileNetV2 Base"]}
+    p_value = float(math.erfc(math.sqrt(chi2_stat / 2))) if chi2_stat >= 0 else None
+    return {
+        "table": [["", "MobileNetV2 Correct", "MobileNetV2 Incorrect"], ["CNN Simple Correct", correct1, b], ["CNN Simple Incorrect", c, incorrect1]],
+        "chi2": chi2_stat,
+        "p_value": p_value,
+        "significant": p_value is not None and p_value < 0.05,
+        "method": "chi_squared_with_continuity_correction",
+        "models": ["CNN Simple", "MobileNetV2 Base"],
+        "interpretation": _mcnemar_interpretation(p_value, language),
+    }
+
+
+def _model_payload(name: str, language: str) -> dict[str, Any]:
+    matrix = CONFUSION_MATRICES[name]
+    exponent, auc = ROC_EXPONENTS[name]
+    details = MODEL_DETAILS[name]
+    return {
+        "name": name,
+        "model_key": MODEL_KEY_BY_LEGACY_NAME[name],
+        "classes": list(CLASS_NAMES),
+        "confusion_matrix": matrix,
+        "roc": _roc_curve(exponent, auc),
+        "mcc": round(_mcc(matrix), 6),
+        "binomial_accuracy_test": _binomial(matrix, language),
+        "architecture": details["architecture"][language],
+        "validation_accuracy": details["accuracy"],
+        "validation_loss": details["validation_loss"],
+        "training_time_hours": details["training_time_hours"],
+    }
 
 
 def legacy_analysis_payload(language: str = "es") -> dict[str, Any]:
     lang = language if language in {"en", "es"} else "es"
-    models = []
-    for name, matrix in CONFUSION_MATRICES.items():
-        exponent, auc = ROC_EXPONENTS[name]
-        details = MODEL_DETAILS[name]
-        models.append({"name": name, "model_key": MODEL_KEY_BY_LEGACY_NAME[name], "classes": list(CLASS_NAMES), "confusion_matrix": matrix, "roc": _roc_curve(exponent, auc), "mcc": round(_mcc(matrix), 6), "binomial_accuracy_test": _binomial(matrix), "architecture": details["architecture"][lang], "validation_accuracy": details["accuracy"], "validation_loss": details["validation_loss"], "training_time_hours": details["training_time_hours"]})
-    return {"source": SOURCE_LABEL, "classes": list(CLASS_NAMES), "models": models, "model_comparison": [{"name": name, "model_key": MODEL_KEY_BY_LEGACY_NAME[name], "validation_accuracy": details["accuracy"], "validation_loss": details["validation_loss"], "training_time_hours": details["training_time_hours"]} for name, details in MODEL_DETAILS.items()], "mcnemar_test": _mcnemar()}
+    models = [_model_payload(name, lang) for name in CONFUSION_MATRICES]
+    return {
+        "source": SOURCE_LABEL,
+        "classes": list(CLASS_NAMES),
+        "models": models,
+        "roc_comparison": [{"name": item["name"], "model_key": item["model_key"], "roc": item["roc"]} for item in models],
+        "model_comparison": [{"name": name, "model_key": MODEL_KEY_BY_LEGACY_NAME[name], "validation_accuracy": details["accuracy"], "validation_loss": details["validation_loss"], "training_time_hours": details["training_time_hours"]} for name, details in MODEL_DETAILS.items()],
+        "mcnemar_test": _mcnemar(lang),
+    }
 
 
 def legacy_training_payload() -> dict[str, Any]:
@@ -142,22 +193,231 @@ def legacy_dataset_payload(language: str = "es") -> dict[str, Any]:
     return {"source": SOURCE_LABEL, **DATASET_INFO, "summary": DATASET_INFO["text"][lang]}
 
 
+def _legacy_for_report(model_key: str | None, language: str) -> dict[str, Any] | None:
+    legacy_name = LEGACY_NAME_BY_MODEL_KEY.get(model_key or "")
+    if not legacy_name:
+        return None
+    return _model_payload(legacy_name, language)
+
+
 def build_report_pdf(payload: dict[str, Any]) -> bytes:
-    lang = payload.get("language", "es")
-    title = "Reporte de Diagnostico" if lang == "es" else "Diagnosis Report"
-    lines = [title, f"Source: {SOURCE_LABEL}", f"Model: {payload.get('model', '')}", f"Class: {payload.get('predicted_class', '')}", f"Confidence: {payload.get('confidence', 0):.2f}%", "Probabilities:"]
+    lang = payload.get("language", "es") if payload.get("language") in {"es", "en"} else "es"
+    try:
+        return _professional_report_pdf(payload, lang)
+    except Exception:
+        return _fallback_report_pdf(payload, lang)
+
+
+def _report_labels(language: str) -> dict[str, str]:
+    if language == "en":
+        return {
+            "title": "Colorectal Cancer Diagnosis Report",
+            "subtitle": "Academic assisted diagnosis system for histopathology images",
+            "summary": "Executive Summary",
+            "prediction": "Prediction Result",
+            "probabilities": "Class Probabilities",
+            "legacy": "Legacy Statistical Analysis",
+            "matrix": "Confusion Matrix",
+            "comparison": "Model Comparison",
+            "mcnemar": "McNemar Test",
+            "architecture": "Model Architecture",
+            "source": "Data source",
+            "model": "Model",
+            "model_key": "Model key",
+            "predicted_class": "Predicted class",
+            "confidence": "Confidence",
+            "metric": "Metric",
+            "value": "Value",
+            "interpretation": "Interpretation",
+            "note": "This report is academic support and does not replace evaluation by a qualified healthcare professional.",
+            "legacy_note": "Statistical values are inherited/precomputed from the original Streamlit application.",
+        }
+    return {
+        "title": "Reporte de Diagnostico de Cancer Colorrectal",
+        "subtitle": "Sistema academico de diagnostico asistido con imagenes histopatologicas",
+        "summary": "Resumen Ejecutivo",
+        "prediction": "Resultado de Prediccion",
+        "probabilities": "Probabilidades por Clase",
+        "legacy": "Analisis Estadistico Heredado",
+        "matrix": "Matriz de Confusion",
+        "comparison": "Comparacion de Modelos",
+        "mcnemar": "Prueba de McNemar",
+        "architecture": "Arquitectura del Modelo",
+        "source": "Fuente de datos",
+        "model": "Modelo",
+        "model_key": "Clave del modelo",
+        "predicted_class": "Clase predicha",
+        "confidence": "Confianza",
+        "metric": "Metrica",
+        "value": "Valor",
+        "interpretation": "Interpretacion",
+        "note": "Este reporte es apoyo academico y no reemplaza la evaluacion de un profesional de salud cualificado.",
+        "legacy_note": "Los valores estadisticos son heredados/precalculados desde la aplicacion Streamlit original.",
+    }
+
+
+def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
+    from io import BytesIO
+
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import cm
+    from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+    labels = _report_labels(language)
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        rightMargin=1.2 * cm,
+        leftMargin=1.2 * cm,
+        topMargin=1.0 * cm,
+        bottomMargin=1.0 * cm,
+        title=labels["title"],
+    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle("ReportTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=20, leading=24, textColor=colors.HexColor("#0f766e"), alignment=TA_CENTER, spaceAfter=6)
+    subtitle_style = ParagraphStyle("ReportSubtitle", parent=styles["Normal"], fontSize=10, leading=14, textColor=colors.HexColor("#334155"), alignment=TA_CENTER, spaceAfter=12)
+    section_style = ParagraphStyle("Section", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=13, leading=16, textColor=colors.HexColor("#0f172a"), spaceBefore=10, spaceAfter=6)
+    body_style = ParagraphStyle("Body", parent=styles["BodyText"], fontSize=8.5, leading=11, textColor=colors.HexColor("#1f2937"), alignment=TA_LEFT)
+    note_style = ParagraphStyle("Note", parent=body_style, textColor=colors.HexColor("#92400e"), backColor=colors.HexColor("#fffbeb"), borderColor=colors.HexColor("#fcd34d"), borderWidth=0.5, borderPadding=6, spaceBefore=8, spaceAfter=8)
+
+    def p(text: object, style: ParagraphStyle = body_style) -> Paragraph:
+        return Paragraph(str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"), style)
+
+    def styled_table(data: list[list[object]], widths: list[float] | None = None, header: bool = True, font_size: float = 8) -> Table:
+        table = Table([[p(cell) for cell in row] for row in data], colWidths=widths, repeatRows=1 if header else 0)
+        style = [
+            ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#cbd5e1")),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 0), (-1, -1), font_size),
+            ("LEFTPADDING", (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]
+        if header:
+            style.extend([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0f766e")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ])
+        table.setStyle(TableStyle(style))
+        return table
+
     probabilities = payload.get("probabilities") or {}
-    for key, value in probabilities.items():
+    legacy = _legacy_for_report(payload.get("model_key"), language)
+    analysis = legacy_analysis_payload(language)
+    story = [p(labels["title"], title_style), p(labels["subtitle"], subtitle_style), p(labels["note"], note_style)]
+
+    story.append(p(labels["summary"], section_style))
+    summary_rows = [
+        [labels["metric"], labels["value"]],
+        [labels["source"], SOURCE_LABEL],
+        [labels["model"], payload.get("model", "")],
+        [labels["model_key"], payload.get("model_key", "")],
+        [labels["predicted_class"], payload.get("predicted_class", "")],
+        [labels["confidence"], f"{float(payload.get('confidence', 0)):.2f}%"],
+    ]
+    story.append(styled_table(summary_rows, widths=[5 * cm, 15 * cm]))
+
+    story.append(p(labels["probabilities"], section_style))
+    prob_rows = [["Clase", "Probabilidad"]] + [[key, f"{float(value):.2f}%"] for key, value in sorted(probabilities.items(), key=lambda item: float(item[1]), reverse=True)]
+    story.append(styled_table(prob_rows, widths=[8 * cm, 5 * cm]))
+
+    story.append(p(labels["legacy"], section_style))
+    story.append(p(labels["legacy_note"], note_style))
+    if legacy:
+        binomial = legacy["binomial_accuracy_test"]
+        ci = binomial["confidence_interval_95"]
+        legacy_rows = [
+            [labels["metric"], labels["value"]],
+            ["Modelo legacy", legacy["name"]],
+            ["AUC", f"{legacy['roc']['auc']:.2f}"],
+            ["MCC", f"{legacy['mcc']:.4f}"],
+            ["Exactitud observada", f"{binomial['accuracy'] * 100:.2f}%"],
+            ["Exactitud aleatoria esperada", f"{binomial['expected_accuracy'] * 100:.2f}%"],
+            ["p-value", f"{binomial['p_value']:.6g}"],
+            ["IC 95%", f"{ci['lower'] * 100:.2f}% - {ci['upper'] * 100:.2f}% ({ci['method']})"],
+            [labels["interpretation"], binomial["interpretation"]],
+        ]
+        story.append(styled_table(legacy_rows, widths=[6 * cm, 16 * cm]))
+        story.append(p(labels["architecture"], section_style))
+        story.append(styled_table([["#", "Detalle"]] + [[index + 1, item] for index, item in enumerate(legacy["architecture"])], widths=[1.2 * cm, 18 * cm]))
+
+    story.append(PageBreak())
+    if legacy:
+        story.append(p(labels["matrix"], section_style))
+        matrix_rows = [[""] + legacy["classes"]] + [[legacy["classes"][index]] + row for index, row in enumerate(legacy["confusion_matrix"])]
+        story.append(styled_table(matrix_rows, widths=[2.1 * cm] + [1.75 * cm] * len(legacy["classes"]), font_size=6.8))
+        story.append(Spacer(1, 8))
+
+    story.append(p(labels["comparison"], section_style))
+    comparison_rows = [["Modelo", "Exactitud", "Perdida", "Tiempo"]] + [[row["name"], f"{row['validation_accuracy'] * 100:.2f}%", f"{row['validation_loss']:.4f}", f"{row['training_time_hours']:.2f} h"] for row in analysis["model_comparison"]]
+    story.append(styled_table(comparison_rows, widths=[7 * cm, 4 * cm, 4 * cm, 4 * cm]))
+
+    story.append(p(labels["mcnemar"], section_style))
+    mcnemar = analysis["mcnemar_test"]
+    mcnemar_rows = [[labels["metric"], labels["value"]], ["chi2", f"{mcnemar['chi2']:.4f}"], ["p-value", f"{mcnemar['p_value']:.6g}" if mcnemar["p_value"] is not None else "N/A"], ["Significancia", "Si" if mcnemar["significant"] else "No"], [labels["interpretation"], mcnemar["interpretation"]]]
+    story.append(styled_table(mcnemar_rows, widths=[5 * cm, 16 * cm]))
+    story.append(Spacer(1, 8))
+    story.append(styled_table(mcnemar["table"], widths=[6 * cm, 6 * cm, 6 * cm], header=False))
+
+    def footer(canvas, document):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 7)
+        canvas.setFillColor(colors.HexColor("#64748b"))
+        canvas.drawString(document.leftMargin, 0.55 * cm, labels["note"])
+        canvas.drawRightString(landscape(A4)[0] - document.rightMargin, 0.55 * cm, f"Pagina {document.page}")
+        canvas.restoreState()
+
+    doc.build(story, onFirstPage=footer, onLaterPages=footer)
+    return buffer.getvalue()
+
+
+def _fallback_report_pdf(payload: dict[str, Any], language: str) -> bytes:
+    labels = _report_labels(language)
+    lines = [labels["title"], f"Source: {SOURCE_LABEL}", "", labels["prediction"], f"Model: {payload.get('model', '')}", f"Model key: {payload.get('model_key', '')}", f"Predicted class: {payload.get('predicted_class', '')}", f"Confidence: {float(payload.get('confidence', 0)):.2f}%", "", labels["probabilities"]]
+    probabilities = payload.get("probabilities") or {}
+    for key, value in sorted(probabilities.items(), key=lambda item: float(item[1]), reverse=True):
         lines.append(f"- {key}: {float(value):.2f}%")
-    lines.append("Academic support only. Interpret with a qualified medical professional.")
+    legacy = _legacy_for_report(payload.get("model_key"), language)
+    analysis = legacy_analysis_payload(language)
+    if legacy:
+        binomial = legacy["binomial_accuracy_test"]
+        ci = binomial["confidence_interval_95"]
+        lines.extend(["", labels["legacy"], f"Legacy model: {legacy['name']}", f"AUC: {legacy['roc']['auc']:.2f}", f"MCC: {legacy['mcc']:.4f}", f"Observed accuracy: {binomial['accuracy'] * 100:.2f}%", f"Expected random accuracy: {binomial['expected_accuracy'] * 100:.2f}%", f"p-value: {binomial['p_value']:.6g}", f"95% CI ({ci['method']}): {ci['lower'] * 100:.2f}% - {ci['upper'] * 100:.2f}%", f"Interpretation: {binomial['interpretation']}"])
+    lines.extend(["", labels["comparison"]])
+    for row in analysis["model_comparison"]:
+        lines.append(f"- {row['name']}: accuracy {row['validation_accuracy'] * 100:.2f}%, loss {row['validation_loss']:.4f}, time {row['training_time_hours']:.2f} h")
+    mcnemar = analysis["mcnemar_test"]
+    lines.extend(["", labels["mcnemar"], f"chi2: {mcnemar['chi2']:.4f}", f"p-value: {mcnemar['p_value']:.6g}" if mcnemar["p_value"] is not None else "p-value: N/A", f"Interpretation: {mcnemar['interpretation']}", "", labels["note"]])
     return _simple_pdf(lines)
-
-
 def _simple_pdf(lines: list[str]) -> bytes:
     def esc(text: str) -> str:
-        return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
-    stream = "BT /F1 12 Tf 50 780 Td 16 TL " + " ".join(f"({esc(line)}) Tj T*" for line in lines) + " ET"
-    objects = ["<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>", "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>", f"<< /Length {len(stream.encode('latin-1', 'replace'))} >>\nstream\n{stream}\nendstream"]
+        return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")[:105]
+
+    lines_per_page = 44
+    page_chunks = [lines[index:index + lines_per_page] for index in range(0, len(lines), lines_per_page)] or [[""]]
+    objects: list[str] = []
+    objects.append("<< /Type /Catalog /Pages 2 0 R >>")
+    objects.append("")
+    objects.append("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+    font_id = 3
+    page_ids: list[int] = []
+
+    for chunk in page_chunks:
+        content_id = len(objects) + 1
+        page_id = len(objects) + 2
+        stream = "BT /F1 10 Tf 50 770 Td 14 TL " + " ".join(f"({esc(line)}) Tj T*" for line in chunk) + " ET"
+        objects.append(f"<< /Length {len(stream.encode('latin-1', 'replace'))} >>\nstream\n{stream}\nendstream")
+        objects.append(f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 {font_id} 0 R >> >> /Contents {content_id} 0 R >>")
+        page_ids.append(page_id)
+
+    objects[1] = f"<< /Type /Pages /Kids [{' '.join(f'{page_id} 0 R' for page_id in page_ids)}] /Count {len(page_ids)} >>"
     pdf = "%PDF-1.4\n"
     offsets = [0]
     for index, obj in enumerate(objects, start=1):

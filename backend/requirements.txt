@@ -4,3 +4,4 @@ python-multipart==0.0.20
 tensorflow==2.16.1
 numpy==1.26.4
 Pillow==10.4.0
+reportlab==4.2.5
