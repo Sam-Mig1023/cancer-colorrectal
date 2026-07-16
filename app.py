@@ -53,20 +53,19 @@ class TranslationService:
                 'mcnemar_test': 'McNemar Test',
                 'download_report': 'Download PDF Report',
                 'sidebar_title': 'Project Information',
-                'sidebar_content': 'This system was trained with the [NCT-CRC-HE-100K](https://www.kaggle.com/datasets/imrankhan77/nct-crc-he-100k) dataset:',
+                'sidebar_content': 'This system was trained with the [NCT-CRC-HE-100K](https://www.kaggle.com/datasets/imrankhan77/nct-crc-he-100k):',
+                'dataset_details': (
+                    '- 100,000 colorectal tissue images\n'
+                    '- 9 histological classes\n'
+                    '- Resolution: 224×224 pixels\n\n'
+                    'The code used to train the models is available on '
+                    '[Google Colab](https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing).\n\n'
+                    'The project is available on '
+                    '[GitHub](https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git).'
+                ),
                 'footer_note': 'Important note: This application is designed to assist medical professionals and should not be used as the sole diagnostic criterion.',
 
-                'dataset_details': '''
-                - 100,000 colorectal tissue images
-                - 9 histological classes
-                - Resolution: 224×224 pixels
-
-                The code used to train the models is available in Google Colab:
-                https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
-
-                The project is available on GitHub:
-                https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
-                ''',
+                
                 # Diagnosis results
                 'correct': 'Correct',
                 'incorrect': 'Incorrect',
@@ -205,19 +204,18 @@ class TranslationService:
                 'download_report': 'Descargar Reporte PDF',
                 'sidebar_title': 'Información del proyecto',
                 'sidebar_content': 'Este sistema fue entrenado con el dataset [NCT-CRC-HE-100K](https://www.kaggle.com/datasets/imrankhan77/nct-crc-he-100k):',
+                'dataset_details': (
+                    '- 100,000 imágenes de tejido colorrectal\n'
+                    '- 9 clases histológicas\n'
+                    '- Resolución: 224×224 píxeles\n\n'
+                    'El código utilizado para entrenar los modelos se encuentra en '
+                    '[Google Colab](https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing).\n\n'
+                    'El proyecto se encuentra disponible en '
+                    '[GitHub](https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git).'
+                ),
                 'footer_note': 'Nota importante: Esta aplicación está diseñada para asistir a profesionales médicos y no debe ser utilizada como único criterio diagnóstico.',
                 #
-                'dataset_details': '''
-                - 100,000 imágenes de tejido colorrectal
-                - 9 clases histológicas
-                - Resolución: 224×224 píxeles
-
-                El código utilizado para entrenar los modelos se encuentra en Google Colab:
-                https://colab.research.google.com/drive/1jsgGq9226_Uhnj0ZtFHIWjZolRxmxmG7?usp=sharing
-
-                El proyecto se encuentra disponible en GitHub:
-                https://github.com/Anthony140823/Deteccion-cancer-colorrectal-IA.git
-                ''',
+                
                 'correct': 'Correcto',
                 'incorrect': 'Incorrecto',
                 # Appearance
@@ -1693,8 +1691,10 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.header(f"📚 {t('sidebar_title')}")
     st.sidebar.markdown(
-    t('sidebar_content') + "\n\n" + t('dataset_details')
-)
+    t('sidebar_content')
+    + "\n\n"
+    + t('dataset_details')
+    )
 
     # Footer
     st.markdown("---")
