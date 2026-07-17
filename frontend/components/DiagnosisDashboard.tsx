@@ -195,7 +195,7 @@ export default function DiagnosisDashboard() {
     setReportLoading(true);
     setError("");
     try {
-      const blob = await api.report({ ...result, language });
+      const blob = await api.report({ ...result, language }, file);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

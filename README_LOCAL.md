@@ -15,6 +15,8 @@ Compruebe `http://127.0.0.1:8000/docs` antes de abrir el frontend.
 
 La clave de Groq se configura solo en el backend mediante `GROQ_API_KEY`; no la escriba en el frontend ni la confirme al repositorio. Puede copiar `backend/.env.example` como referencia. El chatbot envía a Groq el texto de la conversación y el resumen del resultado mostrado, pero no la imagen cargada.
 
+Los datos de portada del reporte PDF se pueden personalizar en `backend/.env` mediante `REPORT_INSTITUTION`, `REPORT_PROGRAM` y `REPORT_RESPONSIBLE`.
+
 ## 2. Frontend Next.js
 
 En otra terminal:
@@ -65,6 +67,6 @@ La migracion FastAPI + Next.js cubre actualmente las funciones visibles de `app.
 - Informacion/arquitectura de modelos.
 - Grafico de entrenamiento heredado.
 - Informacion de dataset y enlaces Kaggle/Colab/GitHub.
-- Reporte PDF generado desde FastAPI con diagnostico, probabilidades, analisis heredado, matriz, comparacion y McNemar.
+- Reporte PDF generado desde FastAPI con portada institucional, ID y fecha, imagen analizada, diagnostico, probabilidades, curva ROC, heatmap de confusion, comparacion, McNemar y responsabilidad academica.
 
 Los analisis siguen marcados como `legacy_precomputed_from_streamlit`: son valores heredados/precalculados de Streamlit, no un nuevo pipeline de evaluacion reproducible.

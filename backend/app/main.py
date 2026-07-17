@@ -1,4 +1,9 @@
-from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from datetime import datetime
+import json
+from uuid import uuid4
+from zoneinfo import ZoneInfo
+
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 
@@ -103,13 +108,36 @@ def legacy_dataset(language: str = Query("es", pattern="^(es|en)$")) -> dict:
 
 
 @app.post("/api/v1/legacy/report", tags=["legacy-report"])
-def legacy_report(payload: LegacyReportRequest) -> Response:
-    pdf_bytes = build_report_pdf(payload.model_dump())
-    filename = f"diagnosis_{payload.model.replace(' ', '_')}.pdf"
+async def legacy_report(
+    payload: str = Form(..., description="JSON diagnosis payload."),
+    image: UploadFile | None = File(default=None, description="Original histopathology image."),
+) -> Response:
+    try:
+        report_request = LegacyReportRequest.model_validate(json.loads(payload))
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail="The report payload is not valid.") from exc
+
+    image_bytes: bytes | None = None
+    if image is not None:
+        if image.content_type and not image.content_type.startswith("image/"):
+            raise HTTPException(status_code=415, detail="The report attachment must be an image.")
+        image_bytes = await image.read()
+        if len(image_bytes) > 15 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="The report image exceeds the 15 MB limit.")
+
+    report_id = f"CCR-{uuid4().hex[:12].upper()}"
+    generated_at = datetime.now(ZoneInfo("America/Lima"))
+    pdf_bytes = build_report_pdf(
+        report_request.model_dump(),
+        image_bytes=image_bytes,
+        report_id=report_id,
+        generated_at=generated_at,
+    )
+    filename = f"diagnosis_{report_id}.pdf"
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+        headers={"Content-Disposition": f'attachment; filename="{filename}"', "X-Report-ID": report_id},
     )
 
 

@@ -21,6 +21,8 @@ python -m uvicorn backend.app.main:app --reload --port 8000 --env-file backend/.
 
 La documentacion interactiva queda disponible en `http://127.0.0.1:8000/docs`.
 
+El reporte PDF recibe el diagnostico y opcionalmente la imagen original mediante `multipart/form-data`. Los datos institucionales se configuran con `REPORT_INSTITUTION`, `REPORT_PROGRAM` y `REPORT_RESPONSIBLE` en `backend/.env`.
+
 ## Endpoints
 
 - `GET /api/v1/health`: confirma que el servicio y los artefactos de modelo estan disponibles.

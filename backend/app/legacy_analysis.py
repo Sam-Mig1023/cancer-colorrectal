@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import os
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -200,10 +202,15 @@ def _legacy_for_report(model_key: str | None, language: str) -> dict[str, Any] |
     return _model_payload(legacy_name, language)
 
 
-def build_report_pdf(payload: dict[str, Any]) -> bytes:
+def build_report_pdf(
+    payload: dict[str, Any],
+    image_bytes: bytes | None = None,
+    report_id: str | None = None,
+    generated_at: datetime | None = None,
+) -> bytes:
     lang = payload.get("language", "es") if payload.get("language") in {"es", "en"} else "es"
     try:
-        return _professional_report_pdf(payload, lang)
+        return _professional_report_pdf(payload, lang, image_bytes, report_id, generated_at)
     except Exception:
         return _fallback_report_pdf(payload, lang)
 
@@ -231,6 +238,16 @@ def _report_labels(language: str) -> dict[str, str]:
             "interpretation": "Interpretation",
             "note": "This report is academic support and does not replace evaluation by a qualified healthcare professional.",
             "legacy_note": "Statistical values are inherited/precomputed from the original Streamlit application.",
+            "institution": "Institution",
+            "report_id": "Report ID",
+            "generated_at": "Generated at",
+            "image": "Analyzed histopathology image",
+            "image_unavailable": "The original image was not attached to this report.",
+            "roc": "ROC Curve",
+            "recommended": "RECOMMENDED MODEL",
+            "responsibility": "Academic responsibility statement",
+            "responsibility_body": "This document is generated automatically for academic and research support. It is not a clinical diagnosis, does not prescribe treatment, and must be interpreted by qualified healthcare professionals.",
+            "signature": "Academic responsible party",
         }
     return {
         "title": "Reporte de Diagnostico de Cancer Colorrectal",
@@ -253,10 +270,26 @@ def _report_labels(language: str) -> dict[str, str]:
         "interpretation": "Interpretacion",
         "note": "Este reporte es apoyo academico y no reemplaza la evaluacion de un profesional de salud cualificado.",
         "legacy_note": "Los valores estadisticos son heredados/precalculados desde la aplicacion Streamlit original.",
+        "institution": "Institucion",
+        "report_id": "ID de reporte",
+        "generated_at": "Fecha y hora",
+        "image": "Imagen histopatologica analizada",
+        "image_unavailable": "La imagen original no fue adjuntada a este reporte.",
+        "roc": "Curva ROC",
+        "recommended": "MODELO RECOMENDADO",
+        "responsibility": "Declaracion de responsabilidad academica",
+        "responsibility_body": "Este documento se genera automaticamente como apoyo academico y de investigacion. No constituye un diagnostico clinico, no prescribe tratamientos y debe ser interpretado por profesionales de salud cualificados.",
+        "signature": "Responsable academico",
     }
 
 
-def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
+def _professional_report_pdf(
+    payload: dict[str, Any],
+    language: str,
+    image_bytes: bytes | None,
+    report_id: str | None,
+    generated_at: datetime | None,
+) -> bytes:
     from io import BytesIO
 
     from reportlab.lib import colors
@@ -264,7 +297,9 @@ def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import cm
-    from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    from reportlab.graphics.shapes import Drawing, Line, PolyLine, Rect, String
+    from reportlab.platypus import Image as RLImage
+    from reportlab.platypus import KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
     labels = _report_labels(language)
     buffer = BytesIO()
@@ -278,11 +313,14 @@ def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
         title=labels["title"],
     )
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle("ReportTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=20, leading=24, textColor=colors.HexColor("#0f766e"), alignment=TA_CENTER, spaceAfter=6)
-    subtitle_style = ParagraphStyle("ReportSubtitle", parent=styles["Normal"], fontSize=10, leading=14, textColor=colors.HexColor("#334155"), alignment=TA_CENTER, spaceAfter=12)
+    title_style = ParagraphStyle("ReportTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=22, leading=27, textColor=colors.white, alignment=TA_LEFT, spaceAfter=5)
+    subtitle_style = ParagraphStyle("ReportSubtitle", parent=styles["Normal"], fontSize=10, leading=14, textColor=colors.HexColor("#ccfbf1"), alignment=TA_LEFT)
+    institution_style = ParagraphStyle("Institution", parent=styles["Normal"], fontName="Helvetica-Bold", fontSize=9, leading=12, textColor=colors.HexColor("#99f6e4"), alignment=TA_LEFT, spaceAfter=12)
     section_style = ParagraphStyle("Section", parent=styles["Heading2"], fontName="Helvetica-Bold", fontSize=13, leading=16, textColor=colors.HexColor("#0f172a"), spaceBefore=10, spaceAfter=6)
     body_style = ParagraphStyle("Body", parent=styles["BodyText"], fontSize=8.5, leading=11, textColor=colors.HexColor("#1f2937"), alignment=TA_LEFT)
     note_style = ParagraphStyle("Note", parent=body_style, textColor=colors.HexColor("#92400e"), backColor=colors.HexColor("#fffbeb"), borderColor=colors.HexColor("#fcd34d"), borderWidth=0.5, borderPadding=6, spaceBefore=8, spaceAfter=8)
+    badge_style = ParagraphStyle("Badge", parent=body_style, fontName="Helvetica-Bold", fontSize=8, leading=10, textColor=colors.HexColor("#115e59"), alignment=TA_CENTER)
+    model_style = ParagraphStyle("ModelHighlight", parent=styles["Heading1"], fontName="Helvetica-Bold", fontSize=18, leading=22, textColor=colors.HexColor("#0f766e"), alignment=TA_CENTER)
 
     def p(text: object, style: ParagraphStyle = body_style) -> Paragraph:
         return Paragraph(str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"), style)
@@ -308,26 +346,104 @@ def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
         table.setStyle(TableStyle(style))
         return table
 
+    def heatmap(legacy_data: dict[str, Any]) -> Drawing:
+        width, height = 11.2 * cm, 8.4 * cm
+        drawing = Drawing(width, height)
+        matrix = legacy_data["confusion_matrix"]
+        class_names = legacy_data["classes"]
+        maximum = max(max(row) for row in matrix) or 1
+        cell = 0.66 * cm
+        origin_x, origin_y = 1.6 * cm, 0.9 * cm
+        drawing.add(String(width / 2, height - 12, labels["matrix"], fontName="Helvetica-Bold", fontSize=10, textAnchor="middle", fillColor=colors.HexColor("#0f172a")))
+        for row_index, row in enumerate(matrix):
+            y = origin_y + (len(matrix) - 1 - row_index) * cell
+            drawing.add(String(origin_x - 7, y + cell * 0.35, class_names[row_index], fontName="Helvetica-Bold", fontSize=6.5, textAnchor="end", fillColor=colors.HexColor("#475569")))
+            for col_index, value in enumerate(row):
+                intensity = 0.12 + 0.88 * (float(value) / maximum)
+                fill = colors.Color(0.92 - 0.75 * intensity, 0.98 - 0.50 * intensity, 0.97 - 0.43 * intensity)
+                x = origin_x + col_index * cell
+                drawing.add(Rect(x, y, cell, cell, fillColor=fill, strokeColor=colors.white, strokeWidth=0.5))
+                drawing.add(String(x + cell / 2, y + cell * 0.35, str(value), fontName="Helvetica-Bold", fontSize=5.7, textAnchor="middle", fillColor=colors.HexColor("#0f172a")))
+        for col_index, class_name in enumerate(class_names):
+            drawing.add(String(origin_x + col_index * cell + cell / 2, origin_y - 9, class_name, fontName="Helvetica-Bold", fontSize=6.5, textAnchor="middle", fillColor=colors.HexColor("#475569")))
+        drawing.add(String(origin_x + len(class_names) * cell / 2, 4, "Prediccion", fontSize=6.5, textAnchor="middle", fillColor=colors.HexColor("#64748b")))
+        return drawing
+
+    def roc_chart(legacy_data: dict[str, Any]) -> Drawing:
+        width, height = 11.2 * cm, 8.4 * cm
+        drawing = Drawing(width, height)
+        left, bottom, plot_width, plot_height = 1.35 * cm, 0.9 * cm, 8.9 * cm, 6.25 * cm
+        drawing.add(String(width / 2, height - 12, f"{labels['roc']} - AUC {legacy_data['roc']['auc']:.2f}", fontName="Helvetica-Bold", fontSize=10, textAnchor="middle", fillColor=colors.HexColor("#0f172a")))
+        drawing.add(Rect(left, bottom, plot_width, plot_height, fillColor=colors.HexColor("#f8fafc"), strokeColor=colors.HexColor("#cbd5e1"), strokeWidth=0.7))
+        for step in range(1, 5):
+            x = left + plot_width * step / 5
+            y = bottom + plot_height * step / 5
+            drawing.add(Line(x, bottom, x, bottom + plot_height, strokeColor=colors.HexColor("#e2e8f0"), strokeWidth=0.4))
+            drawing.add(Line(left, y, left + plot_width, y, strokeColor=colors.HexColor("#e2e8f0"), strokeWidth=0.4))
+        drawing.add(Line(left, bottom, left + plot_width, bottom + plot_height, strokeColor=colors.HexColor("#94a3b8"), strokeWidth=0.8, strokeDashArray=[3, 3]))
+        points = [(left + float(fpr) * plot_width, bottom + float(tpr) * plot_height) for fpr, tpr in zip(legacy_data["roc"]["fpr"], legacy_data["roc"]["tpr"])]
+        drawing.add(PolyLine(points, strokeColor=colors.HexColor("#0f766e"), strokeWidth=2.2))
+        drawing.add(String(left + plot_width / 2, 4, "Tasa de falsos positivos", fontSize=6.5, textAnchor="middle", fillColor=colors.HexColor("#64748b")))
+        drawing.add(String(4, bottom + plot_height / 2, "TPR", fontSize=6.5, fillColor=colors.HexColor("#64748b")))
+        return drawing
+
     probabilities = payload.get("probabilities") or {}
     legacy = _legacy_for_report(payload.get("model_key"), language)
     analysis = legacy_analysis_payload(language)
-    story = [p(labels["title"], title_style), p(labels["subtitle"], subtitle_style), p(labels["note"], note_style)]
+    institution = os.getenv("REPORT_INSTITUTION", "Institucion academica")
+    program = os.getenv("REPORT_PROGRAM", "Proyecto de Ingenieria de Software")
+    responsible = os.getenv("REPORT_RESPONSIBLE", "Equipo academico responsable")
+    effective_report_id = report_id or "CCR-SIN-ID"
+    timestamp = generated_at.strftime("%d/%m/%Y %H:%M:%S %Z") if generated_at else "N/A"
+
+    cover = Table([[p(institution, institution_style)], [p(labels["title"], title_style)], [p(f"{program} | {labels['subtitle']}", subtitle_style)]], colWidths=[landscape(A4)[0] - doc.leftMargin - doc.rightMargin])
+    cover.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#0f766e")), ("LEFTPADDING", (0, 0), (-1, -1), 18), ("RIGHTPADDING", (0, 0), (-1, -1), 18), ("TOPPADDING", (0, 0), (-1, 0), 16), ("BOTTOMPADDING", (0, -1), (-1, -1), 16)]))
+    story = [cover, Spacer(1, 16)]
+
+    metadata = styled_table([
+        [labels["report_id"], effective_report_id, labels["generated_at"], timestamp],
+        [labels["institution"], institution, labels["source"], SOURCE_LABEL],
+    ], widths=[3.2 * cm, 8.2 * cm, 3.2 * cm, 10.2 * cm], header=False)
+    metadata.setStyle(TableStyle([("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#f0fdfa")), ("BACKGROUND", (2, 0), (2, -1), colors.HexColor("#f0fdfa")), ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"), ("FONTNAME", (2, 0), (2, -1), "Helvetica-Bold")]))
+    story.extend([metadata, Spacer(1, 18)])
+
+    recommended = payload.get("model_key") == "best_model"
+    model_card = Table([
+        [p(labels["recommended"] if recommended else labels["model"], badge_style)],
+        [p(payload.get("model", ""), model_style)],
+        [p(f"{labels['model_key']}: {payload.get('model_key', '')}", badge_style)],
+    ], colWidths=[16 * cm])
+    model_card.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 1.2, colors.HexColor("#14b8a6")), ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#ccfbf1")), ("BACKGROUND", (0, 1), (-1, -1), colors.white), ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8)]))
+    story.extend([model_card, Spacer(1, 18), p(labels["note"], note_style), PageBreak()])
 
     story.append(p(labels["summary"], section_style))
     summary_rows = [
         [labels["metric"], labels["value"]],
-        [labels["source"], SOURCE_LABEL],
         [labels["model"], payload.get("model", "")],
         [labels["model_key"], payload.get("model_key", "")],
         [labels["predicted_class"], payload.get("predicted_class", "")],
         [labels["confidence"], f"{float(payload.get('confidence', 0)):.2f}%"],
     ]
-    story.append(styled_table(summary_rows, widths=[5 * cm, 15 * cm]))
+    summary_table = styled_table(summary_rows, widths=[4.5 * cm, 8.3 * cm])
+
+    image_flowable: object = p(labels["image_unavailable"], note_style)
+    if image_bytes:
+        try:
+            image_flowable = RLImage(BytesIO(image_bytes))
+            image_flowable._restrictSize(11.5 * cm, 8.0 * cm)
+        except Exception:
+            image_flowable = p(labels["image_unavailable"], note_style)
+    image_panel = Table([[p(labels["image"], section_style)], [image_flowable]], colWidths=[12.2 * cm])
+    image_panel.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#cbd5e1")), ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f0fdfa")), ("ALIGN", (0, 1), (-1, -1), "CENTER"), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("TOPPADDING", (0, 1), (-1, -1), 8), ("BOTTOMPADDING", (0, 1), (-1, -1), 8)]))
+    summary_panel = Table([[summary_table]], colWidths=[13.0 * cm])
+    summary_panel.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.append(Table([[image_panel, summary_panel]], colWidths=[12.6 * cm, 13.4 * cm], style=TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP")])))
 
     story.append(p(labels["probabilities"], section_style))
     prob_rows = [["Clase", "Probabilidad"]] + [[key, f"{float(value):.2f}%"] for key, value in sorted(probabilities.items(), key=lambda item: float(item[1]), reverse=True)]
     story.append(styled_table(prob_rows, widths=[8 * cm, 5 * cm]))
 
+    story.append(PageBreak())
     story.append(p(labels["legacy"], section_style))
     story.append(p(labels["legacy_note"], note_style))
     if legacy:
@@ -348,13 +464,12 @@ def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
         story.append(p(labels["architecture"], section_style))
         story.append(styled_table([["#", "Detalle"]] + [[index + 1, item] for index, item in enumerate(legacy["architecture"])], widths=[1.2 * cm, 18 * cm]))
 
-    story.append(PageBreak())
     if legacy:
-        story.append(p(labels["matrix"], section_style))
-        matrix_rows = [[""] + legacy["classes"]] + [[legacy["classes"][index]] + row for index, row in enumerate(legacy["confusion_matrix"])]
-        story.append(styled_table(matrix_rows, widths=[2.1 * cm] + [1.75 * cm] * len(legacy["classes"]), font_size=6.8))
-        story.append(Spacer(1, 8))
+        charts = Table([[heatmap(legacy), roc_chart(legacy)]], colWidths=[12.7 * cm, 12.7 * cm])
+        charts.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("BOX", (0, 0), (0, 0), 0.5, colors.HexColor("#cbd5e1")), ("BOX", (1, 0), (1, 0), 0.5, colors.HexColor("#cbd5e1"))]))
+        story.extend([Spacer(1, 10), charts])
 
+    story.append(PageBreak())
     story.append(p(labels["comparison"], section_style))
     comparison_rows = [["Modelo", "Exactitud", "Perdida", "Tiempo"]] + [[row["name"], f"{row['validation_accuracy'] * 100:.2f}%", f"{row['validation_loss']:.4f}", f"{row['training_time_hours']:.2f} h"] for row in analysis["model_comparison"]]
     story.append(styled_table(comparison_rows, widths=[7 * cm, 4 * cm, 4 * cm, 4 * cm]))
@@ -365,12 +480,22 @@ def _professional_report_pdf(payload: dict[str, Any], language: str) -> bytes:
     story.append(styled_table(mcnemar_rows, widths=[5 * cm, 16 * cm]))
     story.append(Spacer(1, 8))
     story.append(styled_table(mcnemar["table"], widths=[6 * cm, 6 * cm, 6 * cm], header=False))
+    story.append(Spacer(1, 14))
+    responsibility = Table([
+        [p(labels["responsibility"], section_style)],
+        [p(labels["responsibility_body"], body_style)],
+        [Spacer(1, 20)],
+        [p("________________________________________", body_style)],
+        [p(f"{labels['signature']}: {responsible}", body_style)],
+    ], colWidths=[25 * cm])
+    responsibility.setStyle(TableStyle([("BOX", (0, 0), (-1, -1), 0.7, colors.HexColor("#94a3b8")), ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f0fdfa")), ("LEFTPADDING", (0, 0), (-1, -1), 10), ("RIGHTPADDING", (0, 0), (-1, -1), 10), ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
+    story.append(KeepTogether(responsibility))
 
     def footer(canvas, document):
         canvas.saveState()
         canvas.setFont("Helvetica", 7)
         canvas.setFillColor(colors.HexColor("#64748b"))
-        canvas.drawString(document.leftMargin, 0.55 * cm, labels["note"])
+        canvas.drawString(document.leftMargin, 0.55 * cm, f"{effective_report_id} | {labels['note']}")
         canvas.drawRightString(landscape(A4)[0] - document.rightMargin, 0.55 * cm, f"Pagina {document.page}")
         canvas.restoreState()
 

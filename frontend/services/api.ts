@@ -46,11 +46,15 @@ export const api = {
   legacyAnalysis: (language: string) => request<LegacyAnalysisResponse>(`/api/v1/legacy/analysis?language=${encodeURIComponent(language)}`),
   legacyTraining: () => request<LegacyTrainingResponse>("/api/v1/legacy/training"),
   legacyDataset: (language: string) => request<LegacyDatasetResponse>(`/api/v1/legacy/dataset?language=${encodeURIComponent(language)}`),
-  report: (payload: PredictionResponse & { language: string }) => requestBlob("/api/v1/legacy/report", {
+  report: (payload: PredictionResponse & { language: string }, image?: File | null) => {
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(payload));
+    if (image) formData.append("image", image);
+    return requestBlob("/api/v1/legacy/report", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  }),
+      body: formData,
+    });
+  },
   chat: (payload: ChatRequest) => request<ChatResponse>("/api/v1/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
