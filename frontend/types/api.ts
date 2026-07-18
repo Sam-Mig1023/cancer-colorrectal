@@ -102,3 +102,19 @@ export interface ApiError {
   status: number;
   message: string;
 }
+
+export interface ChatRequest {
+  language: "es" | "en";
+  messages: Array<{ role: "user" | "assistant"; content: string }>;
+  context: {
+    active_tab: "diagnosis" | "analysis" | "training" | "dataset";
+    selected_model?: string;
+    predicted_class?: string;
+    confidence?: number;
+  };
+}
+
+export interface ChatResponse {
+  answer: string;
+  model: string;
+}

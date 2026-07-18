@@ -1,4 +1,6 @@
-import type { HealthResponse, ModelInfo, PredictionResponse } from "@/types/api";
+﻿import type { HealthResponse, LegacyAnalysisResponse, LegacyDatasetResponse, LegacyTrainingResponse, ModelInfo, PredictionResponse } from "@/types/api";
+
+import type { ChatRequest, ChatResponse } from "@/types/api";
 
 const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
@@ -10,7 +12,16 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     console.error("FastAPI connection error", error);
     throw new Error("CONNECTION_ERROR");
   }
+
   if (!response.ok) {
+    let detail = "";
+    try {
+      const body = (await response.json()) as { detail?: string };
+      detail = body.detail ?? "";
+    } catch {
+      detail = response.statusText;
+    }
+    console.error("FastAPI error", response.status, detail);
     throw new Error(`API_${response.status}`);
   }
   return response.json() as Promise<T>;
@@ -28,17 +39,33 @@ async function requestBlob(path: string, options?: RequestInit): Promise<Blob> {
   return response.blob();
 }
 
-function imageForm(image: File) {
-  const formData = new FormData();
-  formData.append("image", image);
-  return formData;
-}
-
 export const api = {
+  url: apiUrl,
   health: () => request<HealthResponse>("/api/v1/health"),
   models: () => request<ModelInfo[]>("/api/v1/models"),
-  predict: (image: File, model: string) => request<PredictionResponse>(`/api/v1/predict?model=${encodeURIComponent(model)}`, { method: "POST", body: imageForm(image) }),
-  patientReport: (payload: PredictionResponse & { language: string }, image: File) => { const body = new FormData(); body.append("payload", JSON.stringify(payload)); body.append("image", image); return requestBlob("/api/v1/patient/report", { method: "POST", body }); },
-  gradCam: (image: File, model: string, targetClass: string) => requestBlob(`/api/v1/scientific/explainability/grad-cam?model=${encodeURIComponent(model)}&target_class=${encodeURIComponent(targetClass)}`, { method: "POST", body: imageForm(image) }),
-  gradCamReport: (image: File, model: string, targetClass: string, language: string) => requestBlob(`/api/v1/scientific/explainability/grad-cam/report?model=${encodeURIComponent(model)}&target_class=${encodeURIComponent(targetClass)}&language=${encodeURIComponent(language)}`, { method: "POST", body: imageForm(image) }),
+  legacyAnalysis: (language: string) => request<LegacyAnalysisResponse>(`/api/v1/legacy/analysis?language=${encodeURIComponent(language)}`),
+  legacyTraining: () => request<LegacyTrainingResponse>("/api/v1/legacy/training"),
+  legacyDataset: (language: string) => request<LegacyDatasetResponse>(`/api/v1/legacy/dataset?language=${encodeURIComponent(language)}`),
+  report: (payload: PredictionResponse & { language: string }, image?: File | null) => {
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(payload));
+    if (image) formData.append("image", image);
+    return requestBlob("/api/v1/legacy/report", {
+    method: "POST",
+      body: formData,
+    });
+  },
+  chat: (payload: ChatRequest) => request<ChatResponse>("/api/v1/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }),
+  predict: (image: File, model: string) => {
+    const formData = new FormData();
+    formData.append("image", image);
+    return request<PredictionResponse>(`/api/v1/predict?model=${encodeURIComponent(model)}`, {
+      method: "POST",
+      body: formData,
+    });
+  },
 };
