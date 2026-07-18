@@ -1,9 +1,8 @@
-from datetime import datetime
+﻿from datetime import datetime, timedelta, timezone
 import json
 from uuid import uuid4
-from zoneinfo import ZoneInfo
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 
@@ -12,6 +11,8 @@ from .groq_chat import GroqConnectionError, GroqTimeoutError, GroqUpstreamError,
 from .inference import ImageValidationError, model_service
 from .legacy_analysis import TRAINING_PLOT_PATH, build_report_pdf, legacy_analysis_payload, legacy_dataset_payload, legacy_training_payload
 from .schemas import ChatRequest, ChatResponse, HealthResponse, LegacyReportRequest, ModelResponse, PredictionResponse
+from .routers import scientific as scientific_router
+from .routers import system as system_router
 
 
 app = FastAPI(
@@ -68,6 +69,8 @@ async def predict(
 
     try:
         spec, probabilities = model_service.predict(content, model)
+    except ImageValidationError as exc:
+        raise HTTPException(status_code=415, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except FileNotFoundError as exc:
@@ -109,11 +112,17 @@ def legacy_dataset(language: str = Query("es", pattern="^(es|en)$")) -> dict:
 
 @app.post("/api/v1/legacy/report", tags=["legacy-report"])
 async def legacy_report(
-    payload: str = Form(..., description="JSON diagnosis payload."),
+    request: Request,
+    payload: str | None = Form(default=None, description="JSON diagnosis payload."),
     image: UploadFile | None = File(default=None, description="Original histopathology image."),
 ) -> Response:
     try:
-        report_request = LegacyReportRequest.model_validate(json.loads(payload))
+        if request.headers.get("content-type", "").lower().startswith("application/json"):
+            report_request = LegacyReportRequest.model_validate(await request.json())
+        else:
+            if payload is None:
+                raise ValueError("The report payload is required.")
+            report_request = LegacyReportRequest.model_validate(json.loads(payload))
     except (json.JSONDecodeError, ValueError) as exc:
         raise HTTPException(status_code=422, detail="The report payload is not valid.") from exc
 
@@ -126,7 +135,7 @@ async def legacy_report(
             raise HTTPException(status_code=413, detail="The report image exceeds the 15 MB limit.")
 
     report_id = f"CCR-{uuid4().hex[:12].upper()}"
-    generated_at = datetime.now(ZoneInfo("America/Lima"))
+    generated_at = datetime.now(timezone(timedelta(hours=-5)))
     pdf_bytes = build_report_pdf(
         report_request.model_dump(),
         image_bytes=image_bytes,
@@ -163,3 +172,13 @@ async def chat(payload: ChatRequest) -> ChatResponse:
     except (GroqConnectionError, ValueError) as exc:
         raise HTTPException(status_code=502, detail="Groq returned an invalid response.") from exc
     return ChatResponse(answer=answer, model=model)
+
+
+patient_router = APIRouter(tags=["patient-report"])
+patient_router.add_api_route("/patient/report", system_router.patient_report, methods=["POST"])
+app.include_router(patient_router, prefix="/api/v1")
+app.include_router(scientific_router.router, prefix="/api/v1")
+
+
+
+

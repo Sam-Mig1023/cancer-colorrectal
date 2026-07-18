@@ -141,5 +141,32 @@
   "fileReady": "Archivo cargado",
   "runNewAnalysis": "Ejecutar nuevo analisis",
   "selectedImage": "Imagen seleccionada",
-  "probabilityDistribution": "Distribucion completa de probabilidades"
+  "probabilityDistribution": "Distribucion completa de probabilidades",
+  "chatTitle": "Asistente de ayuda",
+  "chatOnline": "Apoyo academico en linea",
+  "chatGreeting": "Hola. Puedo ayudarte a usar el sistema, entender la confianza del modelo, revisar el reporte PDF o explicar el mapa Grad-CAM. No doy diagnosticos clinicos.",
+  "chatButton": "Ayuda",
+  "chatOpen": "Abrir asistente",
+  "chatClose": "Cerrar",
+  "chatPlaceholder": "Escriba su pregunta...",
+  "chatSend": "Enviar mensaje",
+  "chatThinking": "Pensando...",
+  "chatNotConfigured": "El asistente no esta configurado. Revise la variable GROQ_API_KEY en el backend.",
+  "chatInvalidCredentials": "Las credenciales del asistente no son validas.",
+  "chatModelNotAllowed": "El modelo configurado del asistente no esta permitido para esta cuenta.",
+  "chatRateLimit": "Se alcanzo el limite de solicitudes del asistente. Intente nuevamente en unos minutos.",
+  "chatApiError": "No se pudo completar la respuesta del asistente. Revise el backend.",
+  "chatMicError": "No pude capturar el audio. Intente nuevamente o escriba la pregunta.",
+  "chatStartListening": "Iniciar dictado",
+  "chatStopListening": "Detener dictado",
+  "chatListening": "Escuchando...",
+  "chatVoiceUnavailable": "El reconocimiento de voz no esta disponible en este navegador.",
+  "chatEnableVoice": "Activar lectura en voz alta",
+  "chatDisableVoice": "Desactivar lectura en voz alta",
+  "chatDisclaimer": "Asistente academico. No sustituye criterio medico profesional.",
+  "chatQuickQuestions": [
+    "Como interpreto la confianza?",
+    "Que significa Grad-CAM?",
+    "Como descargo el PDF?"
+  ]
 }

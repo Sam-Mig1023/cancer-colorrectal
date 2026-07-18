@@ -141,5 +141,32 @@
   "fileReady": "File loaded",
   "runNewAnalysis": "Run new analysis",
   "selectedImage": "Selected image",
-  "probabilityDistribution": "Full probability distribution"
+  "probabilityDistribution": "Full probability distribution",
+  "chatTitle": "Help assistant",
+  "chatOnline": "Academic support online",
+  "chatGreeting": "Hello. I can help you use the system, understand model confidence, review the PDF report, or explain the Grad-CAM map. I do not provide clinical diagnoses.",
+  "chatButton": "Help",
+  "chatOpen": "Open assistant",
+  "chatClose": "Close",
+  "chatPlaceholder": "Type your question...",
+  "chatSend": "Send message",
+  "chatThinking": "Thinking...",
+  "chatNotConfigured": "The assistant is not configured. Check GROQ_API_KEY in the backend.",
+  "chatInvalidCredentials": "The assistant credentials are not valid.",
+  "chatModelNotAllowed": "The configured assistant model is not allowed for this account.",
+  "chatRateLimit": "The assistant request limit was reached. Try again in a few minutes.",
+  "chatApiError": "The assistant response could not be completed. Check the backend.",
+  "chatMicError": "I could not capture audio. Try again or type your question.",
+  "chatStartListening": "Start dictation",
+  "chatStopListening": "Stop dictation",
+  "chatListening": "Listening...",
+  "chatVoiceUnavailable": "Speech recognition is not available in this browser.",
+  "chatEnableVoice": "Enable voice readout",
+  "chatDisableVoice": "Disable voice readout",
+  "chatDisclaimer": "Academic assistant. It does not replace professional medical judgment.",
+  "chatQuickQuestions": [
+    "How should I read confidence?",
+    "What does Grad-CAM mean?",
+    "How do I download the PDF?"
+  ]
 }
