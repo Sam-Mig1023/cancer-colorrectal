@@ -5,3 +5,7 @@ tensorflow==2.16.1
 numpy==1.26.4
 Pillow==10.4.0
 reportlab==4.2.5
+pytest==8.3.4
+httpx==0.28.1
+
+matplotlib==3.9.2

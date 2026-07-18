@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image, UnidentifiedImageError
 from tensorflow import keras
 
-from .config import CLASS_NAMES, MODEL_SPECS, ModelSpec
+from .config import ALLOWED_IMAGE_FORMATS, CLASS_NAMES, MODEL_SPECS, ModelSpec
 
 
 class ImageValidationError(ValueError):
@@ -50,7 +50,11 @@ class ModelService:
             with Image.open(BytesIO(image_bytes)) as uploaded:
                 uploaded.verify()
             with Image.open(BytesIO(image_bytes)) as uploaded:
+                if uploaded.format not in ALLOWED_IMAGE_FORMATS:
+                    raise ImageValidationError("Upload a valid PNG, JPEG, or WEBP image.")
                 return uploaded.convert("RGB").copy()
+        except ImageValidationError:
+            raise
         except (UnidentifiedImageError, OSError, ValueError) as exc:
             raise ImageValidationError("Upload a valid PNG, JPEG, or WEBP image.") from exc
 

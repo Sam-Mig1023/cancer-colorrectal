@@ -1,0 +1,1 @@
+"""FastAPI routers grouped by stable application domain."""

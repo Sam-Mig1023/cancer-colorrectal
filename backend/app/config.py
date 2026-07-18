@@ -7,6 +7,9 @@ MODELS_DIR = PROJECT_ROOT / "models"
 
 CLASS_NAMES = ("ADI", "BACK", "DEB", "LYM", "MUC", "MUS", "NORM", "STR", "TUM")
 DEFAULT_MODEL = "best_model"
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+ALLOWED_IMAGE_MEDIA_TYPES = frozenset({"image/png", "image/jpeg", "image/webp"})
+ALLOWED_IMAGE_FORMATS = frozenset({"PNG", "JPEG", "WEBP"})
 
 
 @dataclass(frozen=True)

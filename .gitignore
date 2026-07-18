@@ -51,3 +51,7 @@ pnpm-debug.log*
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Dataset and reproducible experiment artifacts
+data/
+experiments/
