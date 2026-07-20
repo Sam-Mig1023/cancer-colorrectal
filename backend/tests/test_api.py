@@ -144,6 +144,19 @@ def create_temporary_dataset(root) -> None:
     (root / "ADI" / "image_duplicate.png").write_bytes((root / "ADI" / "image_1.png").read_bytes())
 
 
+def test_dataset_recognizes_tiff_images(tmp_path) -> None:
+    from backend.app.dataset import summarize_dataset
+
+    class_dir = tmp_path / "TUM"
+    class_dir.mkdir(parents=True)
+    Image.new("RGB", (16, 16), (120, 30, 80)).save(class_dir / "sample.tif", format="TIFF")
+
+    summary = summarize_dataset(str(tmp_path))
+
+    assert summary["total_images"] == 1
+    assert summary["class_counts"]["TUM"] == 1
+
+
 def test_dataset_summary_uses_real_metadata(tmp_path) -> None:
     from backend.app.dataset import summarize_dataset
 
@@ -167,7 +180,7 @@ def test_eda_detects_duplicates_generates_visuals_and_exports(tmp_path, monkeypa
     artifacts = reporting.export_dataset_analysis(analysis)
 
     assert len(analysis["duplicate_groups"]) == 1
-    assert analysis["representative_samples"]
+    assert set(analysis["representative_samples"]) == {"ADI", "BACK"}
     assert distribution_chart_png(analysis["summary"]).startswith(b"\x89PNG")
     assert representative_montage_png(analysis).startswith(b"\x89PNG")
     assert Path(artifacts["json_path"]).exists()

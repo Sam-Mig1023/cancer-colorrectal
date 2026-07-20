@@ -120,7 +120,7 @@ Configure el dataset local, sin incluir sus imagenes en Git:
 $env:COLORECTAL_DATASET_DIR = "E:\ruta\al\dataset"
 ```
 
-El dataset necesita las nueve clases `ADI`, `BACK`, `DEB`, `LYM`, `MUC`, `MUS`, `NORM`, `STR` y `TUM`; para entrenamiento debe contener particiones independientes `train`, `validation` y `test`.
+El dataset necesita las nueve clases `ADI`, `BACK`, `DEB`, `LYM`, `MUC`, `MUS`, `NORM`, `STR` y `TUM`. El lector admite PNG, JPG, JPEG, WEBP, TIF y TIFF. Para entrenamiento debe contener particiones independientes `train`, `validation` y `test`.
 
 | Ruta | Funcion |
 | --- | --- |

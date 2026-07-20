@@ -1,0 +1,937 @@
+PLAN DE TRABAJO DEL DATASET, STREAMLIT, FASTAPI Y NEXT.JS
+Proyecto: Sistema de diagnostico de cancer colorrectal
+Fecha: 19 de julio de 2026
+
+======================================================================
+1. OBJETIVO
+======================================================================
+
+El objetivo es cumplir las indicaciones del docente manteniendo una
+arquitectura compuesta por:
+
+- Next.js, React y Tailwind CSS como frontend principal.
+- FastAPI como backend central y unica fuente de verdad.
+- Streamlit como consola cientifica y administrativa.
+- Python y TensorFlow para los procesos de redes neuronales.
+- Modelos .h5 para inferencia desde FastAPI.
+- Dataset real para EDA, entrenamiento, validacion cruzada, evaluacion,
+  seleccion del mejor modelo, pruebas estadisticas y reportes.
+
+No se reemplazara Next.js por Streamlit. Tampoco se colocara toda la logica
+cientifica dentro de Streamlit. Streamlit y Next.js consumiran los servicios
+de FastAPI.
+
+======================================================================
+2. ARQUITECTURA DEFINITIVA
+======================================================================
+
+USUARIO FINAL
+     |
+     v
+NEXT.JS + REACT + TAILWIND
+     |
+     v
+FASTAPI
+     |-- Inferencia con modelos .h5
+     |-- Gestion del dataset
+     |-- EDA
+     |-- Entrenamiento
+     |-- Evaluacion
+     |-- Validacion cruzada
+     |-- Hiperparametros
+     |-- Pruebas estadisticas
+     |-- Seleccion del mejor modelo
+     `-- Reportes y artefactos
+     ^
+     |
+STREAMLIT CIENTIFICO
+
+Responsabilidades:
+
+2.1. Next.js
+
+- Interfaz para el usuario final.
+- Español e ingles.
+- Modo claro y oscuro.
+- Chatbot escrito y por voz.
+- Carga de imagenes.
+- Seleccion de modelos publicados.
+- Visualizacion del diagnostico y probabilidades.
+- Explicabilidad cuando corresponda.
+- Descarga del reporte individual.
+- Informacion resumida del dataset y del modelo activo.
+
+Next.js no debe abrir directamente los archivos .h5 ni acceder directamente
+a las 100,000 imagenes. Envia solicitudes a FastAPI.
+
+2.2. FastAPI
+
+- Carga los modelos .h5.
+- Ejecuta las predicciones.
+- Administra el dataset.
+- Administra trabajos largos.
+- Ejecuta EDA, entrenamiento y evaluacion.
+- Implementa validacion cruzada.
+- Ejecuta busqueda de hiperparametros.
+- Calcula pruebas estadisticas.
+- Selecciona y registra el mejor modelo.
+- Genera reportes y artefactos reproducibles.
+- Expone endpoints para Next.js y Streamlit.
+
+2.3. Streamlit
+
+- Funciona como consola cientifica del profesor y del equipo.
+- Permite preparar el dataset.
+- Muestra estado y progreso.
+- Ejecuta EDA.
+- Configura entrenamientos.
+- Configura validacion cruzada e hiperparametros.
+- Ejecuta evaluaciones.
+- Compara modelos.
+- Muestra pruebas estadisticas.
+- Permite descargar reportes tecnicos.
+
+Streamlit no debe duplicar los calculos de FastAPI. Debe consumir la API.
+
+======================================================================
+3. DATASETS QUE UTILIZAREMOS
+======================================================================
+
+3.1. NCT-CRC-HE-100K
+
+Uso:
+
+- Entrenamiento.
+- Validacion interna.
+- Validacion cruzada.
+- Busqueda de hiperparametros.
+- EDA.
+
+Caracteristicas:
+
+- 100,000 imagenes histologicas.
+- Resolucion 224 x 224 pixeles.
+- Nueve clases: ADI, BACK, DEB, LYM, MUC, MUS, NORM, STR y TUM.
+- Imagenes H&E normalizadas por color.
+
+3.2. CRC-VAL-HE-7K
+
+Uso:
+
+- Test externo final.
+- Comparacion final de modelos.
+- Pruebas estadisticas pareadas.
+
+Caracteristicas:
+
+- 7,180 imagenes.
+- Mismas nueve clases.
+- Resolucion 224 x 224 pixeles.
+- Pacientes sin solapamiento con NCT-CRC-HE-100K segun la publicacion.
+
+Fuente academica oficial:
+
+https://zenodo.org/records/1214456
+
+DOI:
+
+https://doi.org/10.5281/zenodo.1214456
+
+Proveedor tecnico posible:
+
+https://huggingface.co/datasets/1aurent/NCT-CRC-HE
+
+Zenodo sera la referencia academica oficial. Hugging Face puede utilizarse
+para visualizacion, streaming o sincronizacion tecnica. Se debe documentar
+que la publicacion de Hugging Face es una copia comunitaria.
+
+======================================================================
+4. ALMACENAMIENTO DEL DATASET
+======================================================================
+
+El dataset no se subira a GitHub.
+
+En desarrollo se almacenara en una ruta externa o ignorada por Git:
+
+D:/datasets/colorectal/nct_crc_he_v0_1/
+
+o:
+
+cancer-colorrectal/data/datasets/nct_crc_he_v0_1/
+
+La segunda ruta debe estar incluida en .gitignore.
+
+Estructura recomendada:
+
+nct_crc_he_v0_1/
+|-- raw/
+|   |-- NCT-CRC-HE-100K/
+|   |   |-- ADI/
+|   |   |-- BACK/
+|   |   `-- ...
+|   `-- CRC-VAL-HE-7K/
+|       |-- ADI/
+|       |-- BACK/
+|       `-- ...
+|-- manifests/
+|   |-- dataset_manifest.csv
+|   |-- split_manifest.csv
+|   `-- folds.csv
+|-- cache/
+|-- metadata.json
+`-- checksums.json
+
+FastAPI conocera la ruta mediante una variable de entorno:
+
+COLORECTAL_DATASET_DIR=D:/datasets/colorectal/nct_crc_he_v0_1
+
+Next.js no recibira ni mostrara esta ruta del servidor.
+
+======================================================================
+5. FLUJO GENERAL DEL DATASET
+======================================================================
+
+1. El usuario autorizado abre Streamlit.
+2. Entra en Gestion del dataset.
+3. Selecciona la fuente.
+4. Presiona Preparar dataset.
+5. Streamlit solicita a FastAPI iniciar un trabajo.
+6. FastAPI descarga o sincroniza los datos.
+7. FastAPI verifica archivos y clases.
+8. FastAPI genera el manifiesto.
+9. FastAPI genera particiones y folds reproducibles.
+10. FastAPI calcula checksums y fingerprint.
+11. FastAPI marca el dataset como preparado.
+12. Streamlit habilita EDA, entrenamiento y evaluacion.
+
+La transferencia del dataset es inevitable para entrenar o evaluar todas las
+imagenes. Sin embargo, la descarga sera automatica, reanudable y persistente.
+El usuario no tendra que descargar y organizar manualmente los 15 GB.
+
+======================================================================
+6. PLAN DE IMPLEMENTACION PASO A PASO
+======================================================================
+
+---------------------------------------------------------------------
+PASO 1. INVENTARIAR Y ESTABILIZAR EL ESTADO ACTUAL
+---------------------------------------------------------------------
+
+Acciones:
+
+- Confirmar que Next.js consume FastAPI para inferencia.
+- Confirmar que FastAPI carga correctamente todos los modelos disponibles.
+- Confirmar que Streamlit consume los endpoints cientificos de FastAPI.
+- Ejecutar las pruebas actuales.
+- Registrar las funcionalidades implementadas y pendientes.
+- No eliminar app.py, admin_streamlit.py, Next.js ni FastAPI durante esta fase.
+
+Resultado esperado:
+
+- Documento de estado actual.
+- Lista de endpoints existentes.
+- Lista de errores conocidos.
+- Pruebas base aprobadas antes de realizar cambios.
+
+Criterio de finalizacion:
+
+- Inferencia funcional desde Next.js.
+- Streamlit conectado a FastAPI.
+- Suite de pruebas base ejecutada y documentada.
+
+---------------------------------------------------------------------
+PASO 2. DEFINIR LA CONFIGURACION DEL DATASET
+---------------------------------------------------------------------
+
+Acciones:
+
+- Definir las variables de entorno.
+- Definir la ruta de almacenamiento persistente.
+- Definir la fuente academica y el proveedor tecnico.
+- Definir limites de descarga y espacio requerido.
+- Definir versiones de dataset soportadas.
+
+Variables sugeridas:
+
+COLORECTAL_DATASET_PROVIDER=huggingface
+COLORECTAL_DATASET_DIR=D:/datasets/colorectal/nct_crc_he_v0_1
+COLORECTAL_DATASET_VERSION=v0.1
+COLORECTAL_DATASET_CACHE_DIR=D:/datasets/colorectal/cache
+
+Resultado esperado:
+
+- Configuracion centralizada en FastAPI.
+- Archivo .env.example actualizado.
+- Ninguna ruta absoluta escrita directamente en la logica.
+
+Criterio de finalizacion:
+
+- FastAPI puede informar la configuracion sin exponer datos sensibles.
+
+---------------------------------------------------------------------
+PASO 3. CREAR EL PROVEEDOR DEL DATASET
+---------------------------------------------------------------------
+
+Acciones:
+
+- Crear una interfaz de proveedor.
+- Implementar proveedor local.
+- Implementar proveedor Hugging Face o Zenodo.
+- Permitir consultar metadatos antes de descargar.
+- Permitir descarga reanudable.
+- Comprobar espacio disponible.
+- Validar respuesta del proveedor.
+- Manejar caidas de red y tiempos de espera.
+
+Proveedores previstos:
+
+- local.
+- huggingface.
+- zenodo.
+
+Resultado esperado:
+
+- FastAPI puede consultar y preparar el dataset desde una fuente configurada.
+
+Criterio de finalizacion:
+
+- Se puede interrumpir y reanudar una descarga.
+- Un fallo remoto no detiene la inferencia con .h5.
+
+---------------------------------------------------------------------
+PASO 4. IMPLEMENTAR TRABAJOS DE PREPARACION
+---------------------------------------------------------------------
+
+Acciones:
+
+- Crear un gestor de trabajos del dataset.
+- Registrar estados queued, running, completed, failed y cancelled.
+- Guardar progreso en disco, no solo en memoria.
+- Registrar bytes descargados y etapa actual.
+- Permitir cancelar y reanudar.
+- Evitar que dos usuarios descarguen el mismo dataset simultaneamente.
+
+Endpoints sugeridos:
+
+POST /api/v1/scientific/dataset/prepare
+GET  /api/v1/scientific/dataset/jobs/{job_id}
+POST /api/v1/scientific/dataset/jobs/{job_id}/cancel
+
+Resultado esperado:
+
+- Streamlit puede iniciar y seguir la preparacion sin bloquearse.
+
+Criterio de finalizacion:
+
+- El progreso sobrevive a una recarga de la pagina.
+- Los errores quedan registrados con mensajes comprensibles.
+
+---------------------------------------------------------------------
+PASO 5. VALIDAR LOS ARCHIVOS DESCARGADOS
+---------------------------------------------------------------------
+
+Acciones:
+
+- Confirmar la existencia de las nueve clases.
+- Contar imagenes.
+- Verificar formatos permitidos.
+- Verificar resoluciones.
+- Detectar archivos ilegibles.
+- Calcular checksums.
+- Detectar duplicados exactos.
+- Verificar que CRC-VAL-HE-7K no se mezcle con NCT-CRC-HE-100K.
+
+Resultado esperado:
+
+- checksums.json.
+- metadata.json.
+- Informe de validacion.
+
+Criterio de finalizacion:
+
+- El dataset no se marca como preparado si falta una clase o existen errores
+  criticos sin documentar.
+
+---------------------------------------------------------------------
+PASO 6. GENERAR EL MANIFIESTO REPRODUCIBLE
+---------------------------------------------------------------------
+
+Crear dataset_manifest.csv con columnas como:
+
+- sample_id.
+- path.
+- source_dataset.
+- class_name.
+- split.
+- fold.
+- checksum.
+- patient_id, cuando exista.
+- slide_id, cuando exista.
+- width.
+- height.
+- format.
+
+Ejemplo:
+
+sample_id,path,class_name,source_dataset,split,fold,checksum
+000001,raw/NCT-CRC-HE-100K/ADI/img1.tif,ADI,NCT100K,train,0,abc123
+000002,raw/NCT-CRC-HE-100K/TUM/img2.tif,TUM,NCT100K,validation,1,def456
+000003,raw/CRC-VAL-HE-7K/TUM/img3.tif,TUM,CRC7K,test,,ghi789
+
+Acciones:
+
+- Ordenar muestras de manera determinista.
+- Generar identificadores estables.
+- Calcular fingerprint a partir de version, manifiesto y checksums.
+- No basar la huella solamente en fechas de modificacion.
+
+Resultado esperado:
+
+- Manifiesto versionado y reproducible.
+- Fingerprint estable.
+
+Criterio de finalizacion:
+
+- Dos preparaciones del mismo dataset producen el mismo manifiesto y
+  fingerprint, salvo cambios reales de contenido o configuracion.
+
+---------------------------------------------------------------------
+PASO 7. CREAR PARTICIONES FIJAS
+---------------------------------------------------------------------
+
+Para entrenamiento normal:
+
+NCT-CRC-HE-100K
+|-- Train: 80%
+`-- Validation: 20%
+
+CRC-VAL-HE-7K
+`-- Test externo: 100%
+
+Acciones:
+
+- Utilizar division estratificada por clase.
+- Utilizar semilla 42 o una semilla definida y registrada.
+- Guardar la asignacion en split_manifest.csv.
+- No regenerar las particiones en cada ejecucion.
+- Evitar duplicados entre train, validation y test.
+
+Resultado esperado:
+
+- Particiones fijas compartidas por todos los modelos.
+
+Criterio de finalizacion:
+
+- Todos los modelos reciben exactamente las mismas muestras para cada
+  particion.
+
+---------------------------------------------------------------------
+PASO 8. ADAPTAR DATASET.PY, EDA Y ENTRENAMIENTO AL MANIFIESTO
+---------------------------------------------------------------------
+
+Acciones:
+
+- Modificar el lector de dataset para usar el manifiesto.
+- Mantener compatibilidad con rutas locales durante la migracion.
+- Evitar copiar las imagenes para cada particion.
+- Construir tf.data.Dataset desde las rutas registradas.
+- Hacer que EDA utilice el mismo manifiesto.
+- Hacer que entrenamiento y evaluacion registren el fingerprint.
+
+Resultado esperado:
+
+- EDA, entrenamiento y evaluacion utilizan la misma definicion del dataset.
+
+Criterio de finalizacion:
+
+- Ningun modulo crea una division diferente por su cuenta.
+
+---------------------------------------------------------------------
+PASO 9. COMPLETAR LA INTERFAZ DE STREAMLIT PARA EL DATASET
+---------------------------------------------------------------------
+
+Agregar en Streamlit:
+
+- Selector de proveedor.
+- Version del dataset.
+- Boton Preparar dataset.
+- Estado de descarga.
+- Barra de progreso.
+- Espacio requerido y disponible.
+- Boton cancelar.
+- Boton reanudar.
+- Boton limpiar cache.
+- Conteos por clase.
+- Particiones.
+- Fingerprint.
+- Estado de checksums.
+- Galeria de muestras.
+- Grafico de distribucion.
+- Resultados de EDA.
+
+Resultado esperado:
+
+- El profesor puede administrar y verificar el dataset desde Streamlit.
+
+Criterio de finalizacion:
+
+- No es necesario escribir manualmente una ruta para el flujo normal.
+
+---------------------------------------------------------------------
+PASO 10. CORREGIR Y VALIDAR LA EVALUACION ACTUAL
+---------------------------------------------------------------------
+
+Acciones:
+
+- Corregir la lectura de accuracy, macro_f1 y mcc en admin_streamlit.
+- Verificar que la evaluacion use solamente test.
+- Verificar que las probabilidades tengan nueve columnas.
+- Guardar orden e identificadores de muestras.
+- Registrar modelo, dataset, fingerprint, semilla y preprocesamiento.
+- Verificar matrices de confusion, ROC, AUC y bootstrap.
+
+Resultado esperado:
+
+- Metricas reales visibles correctamente en Streamlit.
+
+Criterio de finalizacion:
+
+- Las tarjetas, JSON y reporte muestran los mismos valores.
+
+---------------------------------------------------------------------
+PASO 11. IMPLEMENTAR VALIDACION CRUZADA
+---------------------------------------------------------------------
+
+Acciones:
+
+- Implementar 5-fold estratificado como configuracion inicial.
+- Guardar la asignacion en folds.csv.
+- Reutilizar los mismos folds para todos los modelos.
+- Entrenar y evaluar independientemente en cada fold.
+- Guardar predicciones y metricas por fold.
+- Calcular media y desviacion estandar.
+- Registrar semillas y configuracion.
+- No incluir CRC-VAL-HE-7K en los folds.
+
+Si existen identificadores de paciente o lamina:
+
+- Utilizar StratifiedGroupKFold.
+
+Si no existen:
+
+- Utilizar StratifiedKFold.
+- Documentar la limitacion de posible correlacion entre parches.
+
+Endpoints sugeridos:
+
+POST /api/v1/scientific/cross-validation/jobs
+GET  /api/v1/scientific/cross-validation/jobs/{job_id}
+
+Resultado esperado:
+
+- Resultados por fold y resumen global reproducible.
+
+Criterio de finalizacion:
+
+- Dos modelos pueden compararse usando exactamente los mismos folds.
+
+---------------------------------------------------------------------
+PASO 12. IMPLEMENTAR BUSQUEDA DE HIPERPARAMETROS
+---------------------------------------------------------------------
+
+Hiperparametros iniciales:
+
+- Learning rate.
+- Batch size.
+- Dropout.
+- Optimizador.
+- Weight decay o regularizacion.
+- Numero de capas descongeladas.
+- Aumento de datos.
+- Early stopping.
+
+Acciones:
+
+- Definir un espacio de busqueda limitado.
+- Implementar Random Search o Keras Tuner.
+- Utilizar los mismos folds.
+- Registrar cada combinacion como experimento.
+- Establecer limites de tiempo y cantidad de intentos.
+- Ordenar resultados por Macro F1 promedio.
+
+Resultado esperado:
+
+- Tabla de configuraciones y resultados.
+
+Criterio de finalizacion:
+
+- Se puede identificar la mejor configuracion sin seleccionar manualmente
+  solo el resultado mas conveniente.
+
+---------------------------------------------------------------------
+PASO 13. SELECCIONAR EL MEJOR MODELO
+---------------------------------------------------------------------
+
+Regla recomendada:
+
+1. Mayor Macro F1 promedio en validacion cruzada.
+2. En caso de empate, mayor MCC promedio.
+3. Menor desviacion entre folds.
+4. Como criterios operativos, menor tamaño y tiempo de inferencia.
+
+Acciones:
+
+- Comparar solamente experimentos compatibles.
+- Verificar mismo dataset, fingerprint y folds.
+- Registrar la decision.
+- Reentrenar el ganador con la configuracion seleccionada.
+- Evaluarlo una sola vez en CRC-VAL-HE-7K.
+- Exportar el modelo a .h5.
+
+Resultado esperado:
+
+- Modelo ganador con evidencia reproducible.
+
+Criterio de finalizacion:
+
+- La seleccion no depende de valores escritos manualmente.
+
+---------------------------------------------------------------------
+PASO 14. CREAR UN REGISTRO DE MODELOS
+---------------------------------------------------------------------
+
+Estructura recomendada:
+
+models/registry/
+|-- mobilenetv2_20260719_exp001.h5
+|-- metadata_exp001.json
+|-- metrics_exp001.json
+`-- active_model.json
+
+metadata_exp001.json debe registrar:
+
+- Arquitectura.
+- Hiperparametros.
+- Fecha.
+- Dataset.
+- Fingerprint.
+- Folds.
+- Semilla.
+- Metricas de validacion cruzada.
+- Metricas externas.
+- Checksum del .h5.
+
+active_model.json identificara el modelo publicado.
+
+No se debe sobrescribir best_model.h5 sin conservar la version anterior.
+
+Resultado esperado:
+
+- Historial de modelos y trazabilidad.
+
+Criterio de finalizacion:
+
+- FastAPI puede cargar el modelo activo definido por el registro.
+
+---------------------------------------------------------------------
+PASO 15. CONECTAR EL MODELO GANADOR CON NEXT.JS
+---------------------------------------------------------------------
+
+Flujo:
+
+1. Next.js consulta modelos disponibles.
+2. FastAPI informa cual es el recomendado.
+3. El usuario carga una imagen.
+4. Next.js envia la imagen y el identificador del modelo.
+5. FastAPI carga el .h5 registrado.
+6. FastAPI preprocesa y predice.
+7. Next.js muestra clase, confianza y probabilidades.
+
+Next.js puede mostrar informacion resumida:
+
+- Modelo activo.
+- Version.
+- Dataset utilizado.
+- Fecha de entrenamiento.
+- Macro F1 externo.
+- Aviso de uso academico y no diagnostico definitivo.
+
+Criterio de finalizacion:
+
+- El frontend nunca necesita una ruta local ni acceso directo al .h5.
+
+---------------------------------------------------------------------
+PASO 16. COMPLETAR LAS PRUEBAS ESTADISTICAS
+---------------------------------------------------------------------
+
+Acciones:
+
+- Evaluar dos modelos sobre CRC-VAL-HE-7K.
+- Utilizar las mismas muestras y el mismo orden.
+- Generar dos artefactos compatibles.
+- Ejecutar McNemar.
+- Ejecutar DeLong para clases seleccionadas.
+- Ejecutar bootstrap pareado.
+- Aplicar Holm-Bonferroni.
+- Mostrar efectos, intervalos y p-values ajustados.
+
+Mejora de Streamlit:
+
+- Sustituir la entrada manual de rutas por selectores de artefactos.
+- Mostrar solamente comparaciones compatibles.
+
+Criterio de finalizacion:
+
+- El sistema rechaza comparaciones con datasets, fingerprints, muestras u
+  ordenes diferentes.
+
+---------------------------------------------------------------------
+PASO 17. REPORTES Y ARTEFACTOS
+---------------------------------------------------------------------
+
+Generar:
+
+- Reporte de EDA.
+- Reporte de entrenamiento.
+- Reporte de validacion cruzada.
+- Reporte de hiperparametros.
+- Reporte de evaluacion externa.
+- Reporte de pruebas estadisticas.
+- Reporte individual de diagnostico.
+
+Cada reporte tecnico debe incluir:
+
+- Dataset y DOI.
+- Fingerprint.
+- Modelo y checksum.
+- Semilla.
+- Particiones o folds.
+- Fecha y hora.
+- Metricas.
+- Limitaciones.
+- Interpretacion.
+
+Criterio de finalizacion:
+
+- Los valores del reporte coinciden con los artefactos almacenados.
+
+---------------------------------------------------------------------
+PASO 18. PRUEBAS INTEGRALES
+---------------------------------------------------------------------
+
+Probar:
+
+- Dataset no configurado.
+- Fuente remota no disponible.
+- Descarga interrumpida.
+- Reanudacion.
+- Espacio insuficiente.
+- Checksum incorrecto.
+- Clase faltante.
+- Imagen dañada.
+- Duplicados entre particiones.
+- Reproducibilidad con la misma semilla.
+- Diferentes semillas cuando corresponda.
+- Evaluacion exclusiva sobre test.
+- Validacion cruzada con folds compartidos.
+- Comparaciones estadisticas incompatibles.
+- Carga del modelo activo.
+- Inferencia desde Next.js.
+- Diagnostico disponible aunque falle el proveedor remoto.
+- Español e ingles.
+- Modo claro y oscuro.
+- Chatbot escrito y por voz.
+
+Criterio de finalizacion:
+
+- Flujo completo demostrado desde preparacion del dataset hasta consumo del
+  modelo ganador en Next.js.
+
+======================================================================
+7. FUNCIONALIDADES ACTUALES QUE SE DEBEN CONSERVAR
+======================================================================
+
+- Frontend Next.js, React y Tailwind.
+- Bilingüe.
+- Modo claro y oscuro.
+- Chatbot.
+- Inferencia FastAPI.
+- Modelos .h5 actuales.
+- Dataset y EDA local.
+- Entrenamiento MobileNetV2.
+- Evaluacion reproducible.
+- Metricas por clase.
+- ROC y AUC.
+- MCC y Macro F1.
+- Bootstrap.
+- McNemar.
+- DeLong.
+- Holm-Bonferroni.
+- Reportes tecnicos.
+- Grad-CAM cuando sea compatible.
+
+No se deben reemplazar estas funciones por datos simulados o metricas
+escritas manualmente.
+
+======================================================================
+8. FUNCIONALIDADES PENDIENTES PRINCIPALES
+======================================================================
+
+- Descarga y preparacion automatica del dataset.
+- Cache persistente.
+- Manifiesto reproducible.
+- Fingerprint basado en contenido y version.
+- Particiones definitivas.
+- Validacion cruzada.
+- Busqueda de hiperparametros.
+- Seleccion automatica del mejor modelo.
+- Registro de modelos.
+- Publicacion controlada de best_model.h5.
+- Persistencia robusta de trabajos.
+- Selector de artefactos en Streamlit.
+- Correccion de la lectura de metricas en Streamlit.
+
+======================================================================
+9. ORDEN RECOMENDADO DE TRABAJO
+======================================================================
+
+FASE 1. Dataset operativo
+
+1. Configuracion.
+2. Proveedor remoto.
+3. Trabajos de descarga.
+4. Verificacion.
+5. Manifiesto.
+6. Particiones.
+7. Interfaz Streamlit.
+
+FASE 2. Evaluacion reproducible
+
+8. Adaptar EDA y evaluacion al manifiesto.
+9. Corregir metricas en Streamlit.
+10. Evaluar todos los modelos sobre las mismas muestras.
+11. Validar reportes.
+
+FASE 3. Ciencia del modelo
+
+12. Validacion cruzada.
+13. Hiperparametros.
+14. Seleccion del mejor modelo.
+15. Evaluacion externa.
+16. Estadistica robusta.
+
+FASE 4. Publicacion
+
+17. Registro de modelos.
+18. Exportacion .h5.
+19. Modelo activo en FastAPI.
+20. Consumo desde Next.js.
+21. Pruebas integrales y presentacion.
+
+======================================================================
+10. REPARTO SUGERIDO DEL TRABAJO
+======================================================================
+
+Integrante encargado de FastAPI y dataset:
+
+- Proveedor remoto.
+- Descarga y cache.
+- Manifiesto.
+- Endpoints.
+- Trabajos y persistencia.
+
+Integrante encargado de redes neuronales:
+
+- tf.data desde manifiesto.
+- Validacion cruzada.
+- Hiperparametros.
+- Entrenamiento.
+- Exportacion .h5.
+
+Integrante encargado de Streamlit:
+
+- Gestion del dataset.
+- Seguimiento de trabajos.
+- EDA.
+- Formularios cientificos.
+- Experimentos y artefactos.
+
+Integrante encargado de Next.js:
+
+- Diagnostico.
+- Informacion del modelo activo.
+- Informacion resumida del dataset.
+- Reportes y experiencia del usuario.
+
+Responsabilidad compartida:
+
+- Pruebas.
+- Documentacion.
+- Interpretacion estadistica.
+- Verificacion bilingüe.
+- Presentacion al docente.
+
+======================================================================
+11. DEMOSTRACION FINAL PARA EL DOCENTE
+======================================================================
+
+La demostracion deberia seguir este orden:
+
+1. Abrir Streamlit.
+2. Mostrar fuente y version del dataset.
+3. Mostrar fingerprint, clases y particiones.
+4. Ejecutar o mostrar EDA real.
+5. Mostrar configuracion de entrenamiento.
+6. Mostrar resultados de validacion cruzada.
+7. Mostrar comparacion de hiperparametros.
+8. Mostrar como se selecciono el mejor modelo.
+9. Mostrar evaluacion externa con CRC-VAL-HE-7K.
+10. Mostrar McNemar, DeLong y bootstrap.
+11. Descargar un reporte tecnico.
+12. Abrir Next.js.
+13. Cargar una imagen.
+14. Mostrar que FastAPI usa el modelo .h5 ganador.
+15. Mostrar probabilidades y reporte individual.
+16. Mostrar modo claro/oscuro, idiomas y chatbot.
+
+======================================================================
+12. DEFINICION DE TERMINADO
+======================================================================
+
+El trabajo se considerara terminado cuando:
+
+- FastAPI prepara y reconoce ambos datasets.
+- Streamlit administra el dataset sin rutas manuales para el flujo normal.
+- El manifiesto y fingerprint son reproducibles.
+- EDA utiliza datos reales.
+- La validacion cruzada esta implementada.
+- Los hiperparametros producen experimentos registrados.
+- El mejor modelo se selecciona mediante una regla objetiva.
+- El ganador se evalua en CRC-VAL-HE-7K.
+- Las pruebas estadisticas comparan predicciones pareadas reales.
+- El modelo ganador se exporta como .h5 y se registra.
+- FastAPI carga el modelo activo.
+- Next.js consume las predicciones de FastAPI.
+- Los reportes contienen trazabilidad.
+- Todo funciona en español e ingles.
+- El modo claro/oscuro y el chatbot siguen funcionando.
+- El dataset completo no se encuentra en GitHub.
+- La ausencia de Internet no impide usar un modelo ya preparado.
+
+======================================================================
+13. RESUMEN FINAL
+======================================================================
+
+Trabajaremos con Next.js como frontend principal, FastAPI como backend central
+y Streamlit como consola cientifica. FastAPI descargara y preparara el dataset
+de manera automatica en almacenamiento persistente fuera de GitHub.
+
+NCT-CRC-HE-100K se utilizara para entrenamiento, validacion y validacion
+cruzada. CRC-VAL-HE-7K se reservara como test externo final. Todas las muestras,
+particiones y folds se registraran en un manifiesto reproducible.
+
+Streamlit permitira controlar EDA, entrenamientos, hiperparametros, validacion
+cruzada, evaluacion, estadistica y reportes. FastAPI realizara los calculos y
+guardara los artefactos. El mejor modelo se seleccionara con una regla objetiva,
+se exportara a .h5 y sera consumido por FastAPI para que Next.js muestre el
+diagnostico al usuario final.
+

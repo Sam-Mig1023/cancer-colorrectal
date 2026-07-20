@@ -464,7 +464,7 @@ def evaluation(base_url: str, models: list[dict[str, Any]]) -> None:
             if not result:
                 st.info(tr("not_available"))
                 return
-            metrics = result.get("metrics", {}) if isinstance(result, dict) else {}
+            metrics = result.get("metrics", result) if isinstance(result, dict) else {}
             c1, c2, c3 = st.columns(3)
             c1.metric("Accuracy", f"{metrics.get('accuracy', 0):.4f}" if isinstance(metrics.get("accuracy"), (int, float)) else "-")
             c2.metric("Macro F1", f"{metrics.get('macro_f1', 0):.4f}" if isinstance(metrics.get("macro_f1"), (int, float)) else "-")

@@ -8,7 +8,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 
 from .config import CLASS_NAMES
-from .dataset import DatasetNotConfiguredError, DatasetSample, iter_samples, summarize_dataset
+from .dataset import DatasetNotConfiguredError, DatasetSample, iter_samples, require_dataset, summarize_dataset
 
 
 def _file_hash(path: Path) -> str:
@@ -27,13 +27,27 @@ def _sample_paths(samples: list[DatasetSample], per_class: int) -> dict[str, lis
     return {class_name: paths for class_name, paths in selected.items() if paths}
 
 
+def _stratified_samples(dataset_path: str | None, sample_limit: int) -> list[DatasetSample]:
+    """Select a deterministic, approximately balanced sample across classes."""
+    selected: list[DatasetSample] = []
+    per_class_limit = max(1, (sample_limit + len(CLASS_NAMES) - 1) // len(CLASS_NAMES))
+    class_counts: Counter[str] = Counter()
+    for sample in iter_samples(dataset_path):
+        if class_counts[sample.class_name] < per_class_limit:
+            selected.append(sample)
+            class_counts[sample.class_name] += 1
+            if len(selected) >= sample_limit:
+                break
+    return selected[:sample_limit]
+
+
 def analyze_dataset(dataset_path: str | None = None, sample_limit: int = 1000, samples_per_class: int = 3) -> dict:
     if not 1 <= sample_limit <= 10000:
         raise ValueError("sample_limit must be between 1 and 10000.")
     if not 1 <= samples_per_class <= 12:
         raise ValueError("samples_per_class must be between 1 and 12.")
     summary = summarize_dataset(dataset_path)
-    samples = list(iter_samples(dataset_path))[:sample_limit]
+    samples = _stratified_samples(dataset_path, sample_limit)
     dimensions: Counter[str] = Counter()
     formats: Counter[str] = Counter()
     file_sizes: list[int] = []
@@ -139,6 +153,11 @@ def representative_montage_png(analysis: dict) -> bytes:
 
 def dataset_status(dataset_path: str | None = None) -> dict:
     try:
-        return {"configured": True, "summary": summarize_dataset(dataset_path)}
+        root, partitions = require_dataset(dataset_path)
+        return {
+            "configured": True,
+            "dataset_root": str(root),
+            "partitions": list(partitions),
+        }
     except DatasetNotConfiguredError as exc:
         return {"configured": False, "detail": str(exc)}

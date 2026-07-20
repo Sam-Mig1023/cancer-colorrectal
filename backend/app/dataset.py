@@ -10,7 +10,7 @@ from typing import Iterator
 
 from .config import CLASS_NAMES, PROJECT_ROOT
 
-IMAGE_EXTENSIONS = frozenset({".png", ".jpg", ".jpeg", ".webp"})
+IMAGE_EXTENSIONS = frozenset({".png", ".jpg", ".jpeg", ".webp", ".tif", ".tiff"})
 DEFAULT_DATASET_DIR = PROJECT_ROOT / "data" / "NCT-CRC-HE-100K"
 
 
