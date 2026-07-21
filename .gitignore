@@ -54,4 +54,12 @@ Thumbs.db
 
 # Dataset and reproducible experiment artifacts
 data/
-experiments/
+experiments/*
+!experiments/evaluations_phase4_demo_all/
+!experiments/evaluations_phase4_demo_all/**
+!experiments/cross_validation_phase6_demo/
+!experiments/cross_validation_phase6_demo/**
+
+# Local datasets: share externally, never commit image corpora
+NCT-CRC-HE-100K*/
+NCT-CRC-HE-100K-SPLIT*/

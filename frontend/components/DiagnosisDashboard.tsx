@@ -640,7 +640,7 @@ function AnalysisView({ t, legacy, selectedLegacy, matrixMax, rocPoints }: {
           <div className="grid grid-cols-2 gap-3"><MetricBlock label="chi2" value={legacy.mcnemar_test.chi2.toFixed(4)} /><MetricBlock label="p-value" value={legacy.mcnemar_test.p_value === null ? "N/A" : legacy.mcnemar_test.p_value.toExponential(2)} detail={legacy.mcnemar_test.significant ? t.significant : t.notSignificant} tone={legacy.mcnemar_test.significant ? "strong" : "default"} /></div>
           <p className="mt-4 text-sm text-slate-700 dark:text-slate-300">{legacy.mcnemar_test.interpretation}</p>
           <h3 className="mb-2 mt-4 text-sm font-semibold">{t.mcnemarTable}</h3>
-          <div className="overflow-x-auto"><table className="w-full min-w-[420px] border-collapse text-sm"><tbody>{legacy.mcnemar_test.table.map((row, rowIndex) => <tr key={rowIndex} className="border-b border-slate-100 dark:border-slate-800">{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`} className="py-2 pr-3 font-medium text-slate-700 dark:text-slate-300">{cell}</td>)}</tr>)}</tbody></table></div>
+          <div className="max-w-full overflow-x-auto"><table className="w-full min-w-[320px] table-fixed border-collapse text-xs sm:text-sm"><tbody>{legacy.mcnemar_test.table.map((row, rowIndex) => <tr key={rowIndex} className="border-b border-slate-100 dark:border-slate-800">{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`} className="break-words py-2 pr-2 font-medium text-slate-700 dark:text-slate-300">{cell}</td>)}</tr>)}</tbody></table></div>
         </div>
       </div>
     </section>
@@ -709,3 +709,4 @@ function EmptyPanel({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
+

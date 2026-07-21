@@ -1,0 +1,132 @@
+{
+  "baseline": "best_model",
+  "challenger": "cnn_simple",
+  "baseline_artifact": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092118_111088Z.npz",
+  "challenger_artifact": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092132_839645Z.npz",
+  "record": {
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\paired_model_comparison_20260721T092857_319749Z.json",
+    "created_at": "2026-07-21T09:28:57.319749+00:00"
+  },
+  "result": {
+    "source": "reproducible_paired_model_comparison",
+    "models": {
+      "first": "Best model (MobileNetV2 Base)",
+      "second": "CNN Simple"
+    },
+    "sample_count": 45,
+    "class_for_delong": "TUM",
+    "mcnemar": {
+      "method": "mcnemar_chi_squared_continuity_correction",
+      "table": [
+        [
+          3,
+          2
+        ],
+        [
+          17,
+          23
+        ]
+      ],
+      "discordant_first_only": 2,
+      "discordant_second_only": 17,
+      "effect_discordant_difference": -15,
+      "chi2": 10.315789,
+      "p_value": 0.0013189686125793583,
+      "significant": true,
+      "p_value_holm": 0.001319,
+      "significant_holm": true
+    },
+    "delong": {
+      "method": "delong_auc",
+      "auc_first": 0.5,
+      "auc_second": 0.81,
+      "effect_auc_difference": -0.31,
+      "standard_error": 0.075953,
+      "ci_95": [
+        -0.458866,
+        -0.161134
+      ],
+      "z_score": -4.081453,
+      "p_value": 4.475502407660346e-05,
+      "significant": true,
+      "p_value_holm": 9e-05,
+      "significant_holm": true
+    },
+    "paired_bootstrap": {
+      "method": "paired_nonparametric_bootstrap",
+      "iterations": 100,
+      "unit": "image",
+      "limitation": "No patient identifier was stored; paired bootstrap is performed at image level.",
+      "metrics": {
+        "accuracy": {
+          "first": 0.111111,
+          "second": 0.444444,
+          "effect_difference": -0.333333,
+          "ci_95": [
+            -0.478334,
+            -0.188333
+          ]
+        },
+        "macro_f1": {
+          "first": 0.2,
+          "second": 0.564379,
+          "effect_difference": -0.364379,
+          "ci_95": [
+            -0.618386,
+            -0.245182
+          ]
+        },
+        "mcc": {
+          "first": 0.0,
+          "second": 0.387241,
+          "effect_difference": -0.387241,
+          "ci_95": [
+            -0.508914,
+            -0.260224
+          ]
+        },
+        "macro_auc_ovr": {
+          "first": 0.5,
+          "second": 0.83,
+          "effect_difference": -0.33,
+          "ci_95": [
+            -0.375737,
+            -0.276326
+          ]
+        },
+        "micro_auc_ovr": {
+          "first": 0.5,
+          "second": 0.825926,
+          "effect_difference": -0.325926,
+          "ci_95": [
+            -0.490631,
+            -0.19511
+          ]
+        }
+      }
+    },
+    "multiple_comparison_correction": {
+      "method": "holm_bonferroni",
+      "family": [
+        "mcnemar",
+        "delong_auc"
+      ],
+      "raw_p_values": [
+        0.0013189686125793583,
+        4.475502407660346e-05
+      ],
+      "adjusted_p_values": [
+        0.001319,
+        9e-05
+      ]
+    },
+    "interpretation": "The comparison uses paired predictions from the same held-out samples. Effect sizes and confidence intervals should be considered alongside adjusted p-values.",
+    "origin": {
+      "dataset_fingerprint_sha256": "4adeec449438176b33beb06f1a6e9e06437e7bda7294fbc92b96ca4618174ee3",
+      "partition": "test",
+      "first_artifact": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092118_111088Z.npz",
+      "second_artifact": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092132_839645Z.npz",
+      "seed": 42
+    }
+  }
+}

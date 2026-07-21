@@ -1,0 +1,33 @@
+<html><body><p># Resumen de presentacion - Colorectal AI</p>
+<p></p>
+<p>## Dataset</p>
+<p>- 100,000 imagenes TIFF 224x224.</p>
+<p>- Split: train 79,994; validation 9,995; test 10,011.</p>
+<p>- Sin corruptas ni duplicados exactos.</p>
+<p></p>
+<p>## Evaluacion demo</p>
+<p>| Modelo | Accuracy | Macro F1 | Macro AUC | MCC |</p>
+<p>| --- | ---: | ---: | ---: | ---: |</p>
+<p>| cnn_simple | 44.44% | 0.5644 | 0.8300 | 0.3872 |</p>
+<p>| best_model | 11.11% | 0.2000 | 0.5000 | 0.0000 |</p>
+<p>| mobilenetv2 | 11.11% | 0.2000 | 0.5000 | 0.0000 |</p>
+<p>| hybrid_attention | 11.11% | 0.2000 | 0.4022 | 0.0000 |</p>
+<p>| hybrid_autoencoder | 11.11% | 0.2000 | 0.4789 | 0.0000 |</p>
+<p>| resnet50v2 | 2.22% | 0.0909 | 0.4761 | -0.1107 |</p>
+<p></p>
+<p>Interpretacion: CNN Simple lidera en la muestra demo. Estos valores sirven para mostrar el pipeline, no como conclusion clinica final.</p>
+<p></p>
+<p>## Pruebas estadisticas</p>
+<p>- McNemar p-value: `0.0013189686125793583`.</p>
+<p>- DeLong p-value para TUM: `4.475502407660346e-05`.</p>
+<p>- Diferencia pareada de accuracy: `-0.333333`.</p>
+<p></p>
+<p>Interpretacion: en la muestra demo, la diferencia entre CNN Simple y best_model es significativa; debe escalarse para conclusion final.</p>
+<p></p>
+<p>## Validacion cruzada demo</p>
+<p>| Modelo | Accuracy mean | Accuracy std | Macro F1 mean | Macro AUC mean | MCC mean |</p>
+<p>| --- | ---: | ---: | ---: | ---: | ---: |</p>
+<p>| cnn_simple | 48.89% | 0.0648 | 0.7203 | 0.8326 | 0.4569 |</p>
+<p>| best_model | 11.11% | 0.0000 | 0.2000 | 0.5000 | 0.0000 |</p>
+<p></p>
+<p>Interpretacion: los folds K=5 existen y estan balanceados. La demo usa modelos ya entrenados; la CV cientifica final debe reentrenar por fold.</p></body></html>

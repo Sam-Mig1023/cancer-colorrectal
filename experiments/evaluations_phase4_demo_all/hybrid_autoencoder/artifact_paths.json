@@ -1,0 +1,10 @@
+{
+  "prediction_artifact": {
+    "artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092224_633574Z.npz",
+    "artifact_type": "paired_prediction_npz"
+  },
+  "record": {
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092224_639570Z.json",
+    "created_at": "2026-07-21T09:22:24.639570+00:00"
+  }
+}

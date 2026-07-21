@@ -1,0 +1,448 @@
+{
+  "samples": 45,
+  "accuracy": 0.111111,
+  "macro_f1": 0.2,
+  "macro_auc_ovr": 0.5,
+  "micro_auc_ovr": 0.5,
+  "mcc": 0.0,
+  "classes": [
+    "ADI",
+    "BACK",
+    "DEB",
+    "LYM",
+    "MUC",
+    "MUS",
+    "NORM",
+    "STR",
+    "TUM"
+  ],
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      0,
+      0,
+      0
+    ]
+  ],
+  "per_class": {
+    "ADI": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.10837,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "BACK": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.105334,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "DEB": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.112161,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "LYM": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.10611,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "MUC": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.112347,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "MUS": {
+      "support": 5,
+      "precision": 0.111111,
+      "recall_sensitivity": 1.0,
+      "specificity": 0.0,
+      "f1": 0.2,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.117898,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "NORM": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.109768,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "STR": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.114659,
+          null
+        ],
+        "auc": 0.5
+      }
+    },
+    "TUM": {
+      "support": 5,
+      "precision": null,
+      "recall_sensitivity": 0.0,
+      "specificity": 1.0,
+      "f1": null,
+      "auc": 0.5,
+      "roc": {
+        "fpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "tpr": [
+          0.0,
+          1.0,
+          1.0
+        ],
+        "thresholds": [
+          null,
+          0.113352,
+          null
+        ],
+        "auc": 0.5
+      }
+    }
+  },
+  "micro_roc": {
+    "fpr": [
+      0.0,
+      0.111111,
+      0.222222,
+      0.333333,
+      0.444444,
+      0.555556,
+      0.666667,
+      0.777778,
+      0.888889,
+      1.0,
+      1.0
+    ],
+    "tpr": [
+      0.0,
+      0.111111,
+      0.222222,
+      0.333333,
+      0.444444,
+      0.555556,
+      0.666667,
+      0.777778,
+      0.888889,
+      1.0,
+      1.0
+    ],
+    "thresholds": [
+      null,
+      0.117898,
+      0.114659,
+      0.113352,
+      0.112347,
+      0.112161,
+      0.109768,
+      0.10837,
+      0.10611,
+      0.105334,
+      null
+    ],
+    "auc": 0.5
+  },
+  "source": "reproducible_evaluation",
+  "confidence_intervals_95": {
+    "unit": "image",
+    "iterations": 100,
+    "limitation": "No patient identifier was supplied; confidence intervals were bootstrapped at image level and may be optimistic when images from the same patient are correlated.",
+    "metrics": {
+      "accuracy": {
+        "estimate": 0.111111,
+        "lower": 0.022222,
+        "upper": 0.211667
+      },
+      "macro_f1": {
+        "estimate": 0.2,
+        "lower": 0.062211,
+        "upper": 0.35
+      },
+      "mcc": {
+        "estimate": 0.0,
+        "lower": 0.0,
+        "upper": 0.0
+      },
+      "macro_auc_ovr": {
+        "estimate": 0.5,
+        "lower": 0.5,
+        "upper": 0.5
+      },
+      "micro_auc_ovr": {
+        "estimate": 0.5,
+        "lower": 0.387292,
+        "upper": 0.58625
+      }
+    }
+  },
+  "interpretation": "Metrics and ROC curves were calculated from the selected held-out test partition. Review per-class sensitivity and specificity before comparing models.",
+  "origin": {
+    "model_key": "best_model",
+    "model_name": "Best model (MobileNetV2 Base)",
+    "model_artifact": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\models\\best_model.h5",
+    "dataset_fingerprint_sha256": "4adeec449438176b33beb06f1a6e9e06437e7bda7294fbc92b96ca4618174ee3",
+    "manifest_content_fingerprint_sha256": "3cdc008b103439d8208fa507e9d61beeb1d47571696090a2733b522fd0597eac",
+    "partition": "test",
+    "evaluated_at_utc": "2026-07-21T09:21:18.110089+00:00",
+    "seed": 42,
+    "experiment_id": "phase4_best_model",
+    "max_samples": 45,
+    "batch_size": 16,
+    "bootstrap_iterations": 100,
+    "sampling": "stratified",
+    "patient_id_regex": null
+  }
+}

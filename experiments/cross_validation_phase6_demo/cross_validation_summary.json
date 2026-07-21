@@ -1,0 +1,141 @@
+{
+  "created_at_utc": "2026-07-21T09:34:24.012949+00:00",
+  "dataset": "E:\\CICLO07\\NCT-CRC-HE-100K-SPLIT",
+  "mode": "demo_existing_models_no_retraining",
+  "limitation": "This validates the cross-validation workflow over stratified folds using existing trained models. Full scientific CV requires retraining inside each fold.",
+  "samples_per_class_per_fold": 2,
+  "fold_metrics": [
+    {
+      "model_key": "cnn_simple",
+      "fold": 0,
+      "samples": 18,
+      "accuracy": 0.5,
+      "macro_f1": 0.730556,
+      "macro_auc_ovr": 0.815972,
+      "micro_auc_ovr": 0.837191,
+      "mcc": 0.456954
+    },
+    {
+      "model_key": "cnn_simple",
+      "fold": 1,
+      "samples": 18,
+      "accuracy": 0.388889,
+      "macro_f1": 0.695454,
+      "macro_auc_ovr": 0.815972,
+      "micro_auc_ovr": 0.821759,
+      "mcc": 0.357548
+    },
+    {
+      "model_key": "cnn_simple",
+      "fold": 2,
+      "samples": 18,
+      "accuracy": 0.555556,
+      "macro_f1": 0.68254,
+      "macro_auc_ovr": 0.829861,
+      "micro_auc_ovr": 0.830633,
+      "mcc": 0.53033
+    },
+    {
+      "model_key": "cnn_simple",
+      "fold": 3,
+      "samples": 18,
+      "accuracy": 0.555556,
+      "macro_f1": 0.719445,
+      "macro_auc_ovr": 0.833333,
+      "micro_auc_ovr": 0.830247,
+      "mcc": 0.53033
+    },
+    {
+      "model_key": "cnn_simple",
+      "fold": 4,
+      "samples": 18,
+      "accuracy": 0.444444,
+      "macro_f1": 0.773333,
+      "macro_auc_ovr": 0.868056,
+      "micro_auc_ovr": 0.857253,
+      "mcc": 0.409091
+    },
+    {
+      "model_key": "best_model",
+      "fold": 0,
+      "samples": 18,
+      "accuracy": 0.111111,
+      "macro_f1": 0.2,
+      "macro_auc_ovr": 0.5,
+      "micro_auc_ovr": 0.5,
+      "mcc": 0.0
+    },
+    {
+      "model_key": "best_model",
+      "fold": 1,
+      "samples": 18,
+      "accuracy": 0.111111,
+      "macro_f1": 0.2,
+      "macro_auc_ovr": 0.5,
+      "micro_auc_ovr": 0.5,
+      "mcc": 0.0
+    },
+    {
+      "model_key": "best_model",
+      "fold": 2,
+      "samples": 18,
+      "accuracy": 0.111111,
+      "macro_f1": 0.2,
+      "macro_auc_ovr": 0.5,
+      "micro_auc_ovr": 0.5,
+      "mcc": 0.0
+    },
+    {
+      "model_key": "best_model",
+      "fold": 3,
+      "samples": 18,
+      "accuracy": 0.111111,
+      "macro_f1": 0.2,
+      "macro_auc_ovr": 0.5,
+      "micro_auc_ovr": 0.5,
+      "mcc": 0.0
+    },
+    {
+      "model_key": "best_model",
+      "fold": 4,
+      "samples": 18,
+      "accuracy": 0.111111,
+      "macro_f1": 0.2,
+      "macro_auc_ovr": 0.5,
+      "micro_auc_ovr": 0.5,
+      "mcc": 0.0
+    }
+  ],
+  "summary": [
+    {
+      "model_key": "cnn_simple",
+      "folds": 5,
+      "samples_per_fold": 18,
+      "accuracy_mean": 0.488889,
+      "accuracy_std": 0.064789,
+      "macro_f1_mean": 0.720266,
+      "macro_f1_std": 0.031501,
+      "macro_auc_ovr_mean": 0.832639,
+      "macro_auc_ovr_std": 0.019069,
+      "micro_auc_ovr_mean": 0.835417,
+      "micro_auc_ovr_std": 0.011968,
+      "mcc_mean": 0.456851,
+      "mcc_std": 0.067735
+    },
+    {
+      "model_key": "best_model",
+      "folds": 5,
+      "samples_per_fold": 18,
+      "accuracy_mean": 0.111111,
+      "accuracy_std": 0.0,
+      "macro_f1_mean": 0.2,
+      "macro_f1_std": 0.0,
+      "macro_auc_ovr_mean": 0.5,
+      "macro_auc_ovr_std": 0.0,
+      "micro_auc_ovr_mean": 0.5,
+      "micro_auc_ovr_std": 0.0,
+      "mcc_mean": 0.0,
+      "mcc_std": 0.0
+    }
+  ]
+}

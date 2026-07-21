@@ -1,0 +1,2 @@
+comparison,samples,class_name,mcnemar_chi2,mcnemar_p_value,mcnemar_significant,accuracy_first,accuracy_second,accuracy_difference,accuracy_diff_ci_low,accuracy_diff_ci_high,auc_first,auc_second,auc_difference,delong_p_value,holm_bonferroni
+best_model_vs_cnn_simple,45,TUM,10.315789,0.0013189686125793583,True,0.111111,0.444444,-0.333333,-0.478334,-0.188333,0.5,0.81,-0.31,4.475502407660346e-05,"{""method"": ""holm_bonferroni"", ""family"": [""mcnemar"", ""delong_auc""], ""raw_p_values"": [0.0013189686125793583, 4.475502407660346e-05], ""adjusted_p_values"": [0.001319, 9e-05]}"

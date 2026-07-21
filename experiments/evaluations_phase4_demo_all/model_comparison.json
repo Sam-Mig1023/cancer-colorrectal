@@ -1,0 +1,80 @@
+[
+  {
+    "model_key": "cnn_simple",
+    "model_name": "CNN Simple",
+    "samples": 45,
+    "accuracy": 0.444444,
+    "macro_f1": 0.564379,
+    "macro_auc_ovr": 0.83,
+    "micro_auc_ovr": 0.825926,
+    "mcc": 0.387241,
+    "elapsed_seconds": 5.807,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092132_839645Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092132_845636Z.json"
+  },
+  {
+    "model_key": "best_model",
+    "model_name": "Best model (MobileNetV2 Base)",
+    "samples": 45,
+    "accuracy": 0.111111,
+    "macro_f1": 0.2,
+    "macro_auc_ovr": 0.5,
+    "micro_auc_ovr": 0.5,
+    "mcc": 0.0,
+    "elapsed_seconds": 11.156,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092118_111088Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092118_154090Z.json"
+  },
+  {
+    "model_key": "mobilenetv2",
+    "model_name": "MobileNetV2 Base",
+    "samples": 45,
+    "accuracy": 0.111111,
+    "macro_f1": 0.2,
+    "macro_auc_ovr": 0.5,
+    "micro_auc_ovr": 0.5,
+    "mcc": 0.0,
+    "elapsed_seconds": 8.895,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092127_048749Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092127_048749Z.json"
+  },
+  {
+    "model_key": "hybrid_attention",
+    "model_name": "Hybrid Attention",
+    "samples": 45,
+    "accuracy": 0.111111,
+    "macro_f1": 0.2,
+    "macro_auc_ovr": 0.402222,
+    "micro_auc_ovr": 0.489136,
+    "mcc": 0.0,
+    "elapsed_seconds": 14.208,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092210_348216Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092210_363838Z.json"
+  },
+  {
+    "model_key": "hybrid_autoencoder",
+    "model_name": "Hybrid Autoencoder",
+    "samples": 45,
+    "accuracy": 0.111111,
+    "macro_f1": 0.2,
+    "macro_auc_ovr": 0.478889,
+    "micro_auc_ovr": 0.497654,
+    "mcc": 0.0,
+    "elapsed_seconds": 14.169,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092224_633574Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092224_639570Z.json"
+  },
+  {
+    "model_key": "resnet50v2",
+    "model_name": "ResNet50V2",
+    "samples": 45,
+    "accuracy": 0.022222,
+    "macro_f1": 0.09091,
+    "macro_auc_ovr": 0.476111,
+    "micro_auc_ovr": 0.489383,
+    "mcc": -0.110657,
+    "elapsed_seconds": 23.426,
+    "prediction_artifact_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\predictions\\predictions_20260721T092156_205733Z.npz",
+    "record_path": "E:\\CICLO07\\ING. SOFTWARE\\PROY3\\cancer-colorrectal\\experiments\\reports\\evaluation_20260721T092156_209741Z.json"
+  }
+]
